@@ -20,6 +20,14 @@ install-cli:
 # ###########################
 # DEV
 # ###########################
+easyjson: export GO111MODULE := off
+easyjson:
+	easyjson -all types/swagger.go
+
+
+# ###########################
+# DEV
+# ###########################
 
 go-mod-get:
 	@echo "Get all dependencies"

@@ -34,7 +34,7 @@ func main() {
 	logger := zap_logger.GetInstanceFromConfig(&cfg.Logger)
 
 	converter, err := convert.New(&convert.Opts{
-		InPath: "",
+		InFile: *inFile,
 		Logger: logger,
 	})
 
