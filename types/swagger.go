@@ -29,33 +29,10 @@ func (v *Components) WriteComponentsSchema(stdout *os.File) error {
 	return nil
 }
 
-type Schema = map[string]*Object
+type Schema = map[string]*ObjectType
 
 func writeComponentsSchema(stdout *os.File, s Schema) error {
-	required := map[string]bool{}
-	if s["required"] != nil {
-		data, err := asMap(s["required"])
-		if err != nil {
-			return err
-		}
-
-		required = parseRequired(data)
-	}
-
 	// required, properties (type, format, description),
-	fmt.Fprintln(stdout, "TODO WRITE", required)
+	fmt.Fprintln(stdout, "TODO WRITE")
 	return nil
-}
-
-func parseRequired(data map[string]interface{}) map[string]bool {
-	return map[string]bool{}
-}
-
-func asMap(i interface{}) (map[string]interface{}, error) {
-	switch v := i.(type) {
-	case map[string]interface{}:
-		return v, nil
-	}
-
-	return nil, fmt.Errorf("unsupported type: %T", i)
 }

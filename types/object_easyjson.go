@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out *PropertyType) {
+func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out *ObjectType) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -38,110 +38,16 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 		switch key {
 		case "type":
 			out.Type = string(in.String())
-		case "description":
+		case "format":
 			if in.IsNull() {
 				in.Skip()
-				out.Description = nil
+				out.Format = nil
 			} else {
-				if out.Description == nil {
-					out.Description = new(string)
+				if out.Format == nil {
+					out.Format = new(string)
 				}
-				*out.Description = string(in.String())
+				*out.Format = string(in.String())
 			}
-		case "example":
-			if m, ok := out.Example.(easyjson.Unmarshaler); ok {
-				m.UnmarshalEasyJSON(in)
-			} else if m, ok := out.Example.(json.Unmarshaler); ok {
-				_ = m.UnmarshalJSON(in.Raw())
-			} else {
-				out.Example = in.Interface()
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, in PropertyType) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"type\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.Type))
-	}
-	{
-		const prefix string = ",\"description\":"
-		out.RawString(prefix)
-		if in.Description == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Description))
-		}
-	}
-	{
-		const prefix string = ",\"example\":"
-		out.RawString(prefix)
-		if m, ok := in.Example.(easyjson.Marshaler); ok {
-			m.MarshalEasyJSON(out)
-		} else if m, ok := in.Example.(json.Marshaler); ok {
-			out.Raw(m.MarshalJSON())
-		} else {
-			out.Raw(json.Marshal(in.Example))
-		}
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v PropertyType) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v PropertyType) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *PropertyType) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *PropertyType) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(l, v)
-}
-func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, out *Object) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "type":
-			out.Type = string(in.String())
 		case "description":
 			if in.IsNull() {
 				in.Skip()
@@ -175,31 +81,76 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 				}
 				in.Delim(']')
 			}
+		case "$ref":
+			if in.IsNull() {
+				in.Skip()
+				out.Ref = nil
+			} else {
+				if out.Ref == nil {
+					out.Ref = new(string)
+				}
+				*out.Ref = string(in.String())
+			}
+		case "enum":
+			if in.IsNull() {
+				in.Skip()
+				out.Enum = nil
+			} else {
+				in.Delim('[')
+				if out.Enum == nil {
+					if !in.IsDelim(']') {
+						out.Enum = make([]string, 0, 4)
+					} else {
+						out.Enum = []string{}
+					}
+				} else {
+					out.Enum = (out.Enum)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v2 string
+					v2 = string(in.String())
+					out.Enum = append(out.Enum, v2)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "properties":
 			if in.IsNull() {
 				in.Skip()
 			} else {
 				in.Delim('{')
-				out.Properties = make(map[string]*PropertyType)
+				if !in.IsDelim('}') {
+					out.Properties = make(map[string]*ObjectType)
+				} else {
+					out.Properties = nil
+				}
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v2 *PropertyType
+					var v3 *ObjectType
 					if in.IsNull() {
 						in.Skip()
-						v2 = nil
+						v3 = nil
 					} else {
-						if v2 == nil {
-							v2 = new(PropertyType)
+						if v3 == nil {
+							v3 = new(ObjectType)
 						}
 						if data := in.Raw(); in.Ok() {
-							in.AddError((*v2).UnmarshalJSON(data))
+							in.AddError((*v3).UnmarshalJSON(data))
 						}
 					}
-					(out.Properties)[key] = v2
+					(out.Properties)[key] = v3
 					in.WantComma()
 				}
 				in.Delim('}')
+			}
+		case "example":
+			if m, ok := out.Example.(easyjson.Unmarshaler); ok {
+				m.UnmarshalEasyJSON(in)
+			} else if m, ok := out.Example.(json.Unmarshaler); ok {
+				_ = m.UnmarshalJSON(in.Raw())
+			} else {
+				out.Example = in.Interface()
 			}
 		default:
 			in.SkipRecursive()
@@ -211,7 +162,7 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer, in Object) {
+func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, in ObjectType) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -220,79 +171,106 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer,
 		out.RawString(prefix[1:])
 		out.String(string(in.Type))
 	}
-	{
+	if in.Format != nil {
+		const prefix string = ",\"format\":"
+		out.RawString(prefix)
+		out.String(string(*in.Format))
+	}
+	if in.Description != nil {
 		const prefix string = ",\"description\":"
 		out.RawString(prefix)
-		if in.Description == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Description))
-		}
+		out.String(string(*in.Description))
 	}
-	{
+	if len(in.Required) != 0 {
 		const prefix string = ",\"required\":"
 		out.RawString(prefix)
-		if in.Required == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
+		{
 			out.RawByte('[')
-			for v3, v4 := range in.Required {
-				if v3 > 0 {
+			for v4, v5 := range in.Required {
+				if v4 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v4))
+				out.String(string(v5))
 			}
 			out.RawByte(']')
 		}
 	}
-	{
+	if in.Ref != nil {
+		const prefix string = ",\"$ref\":"
+		out.RawString(prefix)
+		out.String(string(*in.Ref))
+	}
+	if len(in.Enum) != 0 {
+		const prefix string = ",\"enum\":"
+		out.RawString(prefix)
+		{
+			out.RawByte('[')
+			for v6, v7 := range in.Enum {
+				if v6 > 0 {
+					out.RawByte(',')
+				}
+				out.String(string(v7))
+			}
+			out.RawByte(']')
+		}
+	}
+	if len(in.Properties) != 0 {
 		const prefix string = ",\"properties\":"
 		out.RawString(prefix)
-		if in.Properties == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
-			out.RawString(`null`)
-		} else {
+		{
 			out.RawByte('{')
-			v5First := true
-			for v5Name, v5Value := range in.Properties {
-				if v5First {
-					v5First = false
+			v8First := true
+			for v8Name, v8Value := range in.Properties {
+				if v8First {
+					v8First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v5Name))
+				out.String(string(v8Name))
 				out.RawByte(':')
-				if v5Value == nil {
+				if v8Value == nil {
 					out.RawString("null")
 				} else {
-					out.Raw((*v5Value).MarshalJSON())
+					out.Raw((*v8Value).MarshalJSON())
 				}
 			}
 			out.RawByte('}')
+		}
+	}
+	if in.Example != nil {
+		const prefix string = ",\"example\":"
+		out.RawString(prefix)
+		if m, ok := in.Example.(easyjson.Marshaler); ok {
+			m.MarshalEasyJSON(out)
+		} else if m, ok := in.Example.(json.Marshaler); ok {
+			out.Raw(m.MarshalJSON())
+		} else {
+			out.Raw(json.Marshal(in.Example))
 		}
 	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Object) MarshalJSON() ([]byte, error) {
+func (v ObjectType) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes1(&w, v)
+	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Object) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes1(w, v)
+func (v ObjectType) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Object) UnmarshalJSON(data []byte) error {
+func (v *ObjectType) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes1(&r, v)
+	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Object) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes1(l, v)
+func (v *ObjectType) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(l, v)
 }

@@ -128,17 +128,17 @@ func easyjson5ac9ea7aDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 				in.Skip()
 			} else {
 				in.Delim('{')
-				out.Schemas = make(map[string]*Object)
+				out.Schemas = make(map[string]*ObjectType)
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v1 *Object
+					var v1 *ObjectType
 					if in.IsNull() {
 						in.Skip()
 						v1 = nil
 					} else {
 						if v1 == nil {
-							v1 = new(Object)
+							v1 = new(ObjectType)
 						}
 						if data := in.Raw(); in.Ok() {
 							in.AddError((*v1).UnmarshalJSON(data))
