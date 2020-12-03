@@ -56,7 +56,16 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		w.opts.Logger.Warn("No schemas to write.")
 	}
 
-	for k, v := range schemas {
+	types := make([]string, 0)
+	for k, _ := range schemas {
+		types = append(types, k)
+	}
+
+	// Sort prop names
+	sort.Strings(types)
+
+	for _, k := range types {
+		v := schemas[k]
 		// Write TYPE
 		_, err = fmt.Fprintf(w.outFile, "# %s \n\n", k)
 		if err != nil {
