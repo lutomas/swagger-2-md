@@ -43,11 +43,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = converter.Convert()
+	swager, err := converter.Convert()
 	if err != nil {
 		logger.Error("FAILED TO CONVERT", zap.Error(err))
 		os.Exit(1)
 	}
+
+	swager.WriteComponentsSchema(os.Stdout)
 
 	logger.Info("DONE!")
 }

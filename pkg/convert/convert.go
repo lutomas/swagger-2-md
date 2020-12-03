@@ -24,25 +24,23 @@ func New(opts *Opts) (*Converter, error) {
 	}, nil
 }
 
-func (c *Converter) Convert() error {
+func (c *Converter) Convert() (*types.Swagger, error) {
 	jsonFile, err := os.Open(c.opts.InFile.Name())
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
 
-	data := types.Swagger{}
+	data := &types.Swagger{}
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	err = easyjson.Unmarshal(byteValue, &data)
+	err = easyjson.Unmarshal(byteValue, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	c.opts.Logger.Info("data", zap.Any("swagger", data))
-
-	return nil
+	return data, nil
 }
