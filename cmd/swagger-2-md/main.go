@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lutomas/swagger-2-md/pkg/md"
 	"go.uber.org/zap"
 
 	"github.com/lutomas/swagger-2-md/pkg/config"
@@ -15,7 +16,8 @@ import (
 )
 
 var (
-	inFile = kingpin.Flag("swagger", "Path to swagger JSON file.").Default("swagger.json").Short('s').File()
+	inFile      = kingpin.Flag("swagger", "Path to swagger JSON file.").Default("swagger.json").Short('s').File()
+	outFilePath = kingpin.Flag("md", "Path to out Markdown file.").Default("swagger.md").Short('o').String()
 )
 
 func main() {
@@ -24,6 +26,9 @@ func main() {
 
 	kingpin.Version("0.0.1")
 	kingpin.Parse()
+
+	fmt.Println("Input file:", (*inFile).Name())
+	fmt.Println("Output file:", *outFilePath)
 
 	cfg, err := config.LoadMainAppConfig()
 	if err != nil {
@@ -37,7 +42,6 @@ func main() {
 		InFile: *inFile,
 		Logger: logger,
 	})
-
 	if err != nil {
 		logger.Error("FAILED CREATE PARSER", zap.Error(err))
 		os.Exit(1)
@@ -49,7 +53,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	swagger.WriteComponentsSchema(os.Stdout)
+	mdWriter, err := md.New(&md.Opts{
+		OutFilePath: outFilePath,
+		Logger:      logger,
+	})
+	if err != nil {
+		logger.Error("FAILED CREATE WRITER", zap.Error(err))
+		os.Exit(1)
+	}
+
+	err = mdWriter.Write(swagger)
+	if err != nil {
+		logger.Error("FAILED TO WRITE", zap.Error(err))
+		os.Exit(1)
+	}
 
 	logger.Info("DONE!")
 }

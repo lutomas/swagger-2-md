@@ -152,6 +152,39 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 			} else {
 				out.Example = in.Interface()
 			}
+		case "allOf":
+			if in.IsNull() {
+				in.Skip()
+				out.AllOf = nil
+			} else {
+				in.Delim('[')
+				if out.AllOf == nil {
+					if !in.IsDelim(']') {
+						out.AllOf = make([]*ObjectType, 0, 8)
+					} else {
+						out.AllOf = []*ObjectType{}
+					}
+				} else {
+					out.AllOf = (out.AllOf)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 *ObjectType
+					if in.IsNull() {
+						in.Skip()
+						v4 = nil
+					} else {
+						if v4 == nil {
+							v4 = new(ObjectType)
+						}
+						if data := in.Raw(); in.Ok() {
+							in.AddError((*v4).UnmarshalJSON(data))
+						}
+					}
+					out.AllOf = append(out.AllOf, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -186,11 +219,11 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 		out.RawString(prefix)
 		{
 			out.RawByte('[')
-			for v4, v5 := range in.Required {
-				if v4 > 0 {
+			for v5, v6 := range in.Required {
+				if v5 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v5))
+				out.String(string(v6))
 			}
 			out.RawByte(']')
 		}
@@ -205,11 +238,11 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 		out.RawString(prefix)
 		{
 			out.RawByte('[')
-			for v6, v7 := range in.Enum {
-				if v6 > 0 {
+			for v7, v8 := range in.Enum {
+				if v7 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v7))
+				out.String(string(v8))
 			}
 			out.RawByte(']')
 		}
@@ -219,19 +252,19 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 		out.RawString(prefix)
 		{
 			out.RawByte('{')
-			v8First := true
-			for v8Name, v8Value := range in.Properties {
-				if v8First {
-					v8First = false
+			v9First := true
+			for v9Name, v9Value := range in.Properties {
+				if v9First {
+					v9First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v8Name))
+				out.String(string(v9Name))
 				out.RawByte(':')
-				if v8Value == nil {
+				if v9Value == nil {
 					out.RawString("null")
 				} else {
-					out.Raw((*v8Value).MarshalJSON())
+					out.Raw((*v9Value).MarshalJSON())
 				}
 			}
 			out.RawByte('}')
@@ -246,6 +279,24 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 			out.Raw(m.MarshalJSON())
 		} else {
 			out.Raw(json.Marshal(in.Example))
+		}
+	}
+	if len(in.AllOf) != 0 {
+		const prefix string = ",\"allOf\":"
+		out.RawString(prefix)
+		{
+			out.RawByte('[')
+			for v10, v11 := range in.AllOf {
+				if v10 > 0 {
+					out.RawByte(',')
+				}
+				if v11 == nil {
+					out.RawString("null")
+				} else {
+					out.Raw((*v11).MarshalJSON())
+				}
+			}
+			out.RawByte(']')
 		}
 	}
 	out.RawByte('}')

@@ -36,3 +36,4 @@ lh*
 
 # DB
 main-app.db
+/swagger.md
