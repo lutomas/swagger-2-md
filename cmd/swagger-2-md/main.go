@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/lutomas/swagger-2-md/pkg/config"
-	"github.com/lutomas/swagger-2-md/pkg/convert"
+	"github.com/lutomas/swagger-2-md/pkg/parser"
 	"github.com/lutomas/swagger-2-md/pkg/zap_logger"
 	"github.com/lutomas/swagger-2-md/types"
 
@@ -33,23 +33,23 @@ func main() {
 
 	logger := zap_logger.GetInstanceFromConfig(&cfg.Logger)
 
-	converter, err := convert.New(&convert.Opts{
+	parser, err := parser.New(&parser.Opts{
 		InFile: *inFile,
 		Logger: logger,
 	})
 
 	if err != nil {
-		logger.Error("FAILED CREATE CONVERTER", zap.Error(err))
+		logger.Error("FAILED CREATE PARSER", zap.Error(err))
 		os.Exit(1)
 	}
 
-	swager, err := converter.Convert()
+	swagger, err := parser.Parse()
 	if err != nil {
-		logger.Error("FAILED TO CONVERT", zap.Error(err))
+		logger.Error("FAILED TO PARSE", zap.Error(err))
 		os.Exit(1)
 	}
 
-	swager.WriteComponentsSchema(os.Stdout)
+	swagger.WriteComponentsSchema(os.Stdout)
 
 	logger.Info("DONE!")
 }

@@ -1,4 +1,4 @@
-package convert
+package parser
 
 import (
 	"io/ioutil"
@@ -14,17 +14,17 @@ type Opts struct {
 	InFile *os.File
 	Logger *zap.Logger
 }
-type Converter struct {
+type Parser struct {
 	opts *Opts
 }
 
-func New(opts *Opts) (*Converter, error) {
-	return &Converter{
+func New(opts *Opts) (*Parser, error) {
+	return &Parser{
 		opts: opts,
 	}, nil
 }
 
-func (c *Converter) Convert() (*types.Swagger, error) {
+func (c *Parser) Parse() (*types.Swagger, error) {
 	jsonFile, err := os.Open(c.opts.InFile.Name())
 	// if we os.Open returns an error then handle it
 	if err != nil {
