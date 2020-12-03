@@ -10,11 +10,20 @@ import (
 	"github.com/lutomas/swagger-2-md/pkg/convert"
 	"github.com/lutomas/swagger-2-md/pkg/zap_logger"
 	"github.com/lutomas/swagger-2-md/types"
+
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	inFile = kingpin.Flag("swagger", "Path to swagger JSON file.").Default("swagger.json").Short('s').File()
 )
 
 func main() {
 	version := types.NewVersion("swagger-2-md")
 	fmt.Printf("Version: %+v\n", *version)
+
+	kingpin.Version("0.0.1")
+	kingpin.Parse()
 
 	cfg, err := config.LoadMainAppConfig()
 	if err != nil {

@@ -25,10 +25,11 @@ bin
 # LH = LoclaHost files used for local purposes.
 lh.*
 LH.*
+lh*
 
 .vscode
 
-# .env file stores docker-compose environment variables such as 
+# .env file stores docker-compose environment variables such as
 # database host, credentials
 .env*
 .test_env*
