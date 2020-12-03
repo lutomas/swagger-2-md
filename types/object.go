@@ -9,4 +9,5 @@ type ObjectType struct {
 	Enum        []string               `json:"enum,omitempty"`
 	Properties  map[string]*ObjectType `json:"properties,omitempty"`
 	Example     interface{}            `json:"example,omitempty"`
+	AllOf       []*ObjectType          `json:"allOf,omitempty"`
 }
