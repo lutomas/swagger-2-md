@@ -3,6 +3,7 @@ package md
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/lutomas/swagger-2-md/types"
@@ -77,10 +78,27 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 }
 
 func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
+
+	if v.Type != "object" {
+		_, err = fmt.Fprintf(w.outFile, "| Type |\n")
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintf(w.outFile, "|------|\n")
+		if err != nil {
+			return err
+		}
+
+		_, err = fmt.Fprintf(w.outFile, "| %s |\n\n", v.Type)
+		if err != nil {
+			return err
+		}
+	}
+
 	if v.Properties == nil {
 		return nil
 	}
-	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description\n")
+	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
 	if err != nil {
 		return err
 	}
@@ -106,15 +124,24 @@ func (w *Writer) writeProperties(required []string, properties map[string]*types
 		return nil
 	}
 
-	for k, v := range properties {
+	propNames := make([]string, 0)
+	for k, _ := range properties {
+		propNames = append(propNames, k)
+	}
+
+	// Sort prop names
+	sort.Strings(propNames)
+
+	for _, k := range propNames {
+		v := properties[k]
 		// | prop | type | mandatory | description | example |
-		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", k, prepareType(v), contains(required, k), prepareDescription(v.Description))
+		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", k, preparePropertyType(v), isRequired(required, k), prepareDescription(v.Description))
 	}
 
 	return nil
 }
 
-func prepareType(v *types.ObjectType) string {
+func preparePropertyType(v *types.ObjectType) string {
 	t := v.Type
 	if t == "" {
 		if v.Ref != nil {
@@ -138,7 +165,7 @@ func prepareDescription(description *string) string {
 	return strings.ReplaceAll(*description, "\n", "<br/>")
 }
 
-func contains(s []string, e string) string {
+func isRequired(s []string, e string) string {
 	for _, a := range s {
 		if a == e {
 			return "yes"
