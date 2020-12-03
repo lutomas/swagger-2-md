@@ -29,7 +29,7 @@ func (v *Components) WriteComponentsSchema(stdout *os.File) error {
 	return nil
 }
 
-type Schema = map[string]interface{}
+type Schema = map[string]*Object
 
 func writeComponentsSchema(stdout *os.File, s Schema) error {
 	required := map[string]bool{}

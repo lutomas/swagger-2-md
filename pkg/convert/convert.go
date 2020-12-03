@@ -42,5 +42,7 @@ func (c *Converter) Convert() (*types.Swagger, error) {
 		return nil, err
 	}
 
+	c.opts.Logger.Info("data", zap.Any("swagger", data))
+
 	return data, nil
 }
