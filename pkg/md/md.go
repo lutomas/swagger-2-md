@@ -66,7 +66,6 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			if err != nil {
 				return err
 			}
-
 		}
 
 		if err = w.writeObjectType(v); err != nil {
@@ -81,11 +80,11 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 	if v.Properties == nil {
 		return nil
 	}
-	_, err = fmt.Fprintf(w.outFile, "| prop | type | mandatory | description | example |\n")
+	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description\n")
 	if err != nil {
 		return err
 	}
-	_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|------|\n")
+	_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|\n")
 	if err != nil {
 		return err
 	}
@@ -109,10 +108,34 @@ func (w *Writer) writeProperties(required []string, properties map[string]*types
 
 	for k, v := range properties {
 		// | prop | type | mandatory | description | example |
-		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|%s|\n", k, v.Type, contains(required, k), "?", "?")
+		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", k, prepareType(v), contains(required, k), prepareDescription(v.Description))
 	}
 
 	return nil
+}
+
+func prepareType(v *types.ObjectType) string {
+	t := v.Type
+	if t == "" {
+		if v.Ref != nil {
+			return *v.Ref
+		}
+		return "?"
+	}
+
+	if v.Format != nil {
+		t = fmt.Sprintf("%s(%s)", t, *v.Format)
+	}
+
+	return t
+}
+
+func prepareDescription(description *string) string {
+	if description == nil {
+		return ""
+	}
+
+	return strings.ReplaceAll(*description, "\n", "<br/>")
 }
 
 func contains(s []string, e string) string {
