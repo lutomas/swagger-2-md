@@ -10,9 +10,5 @@ func LoadMainAppConfig() (MainAppConfig, error) {
 		return config, err
 	}
 
-	if config.Database.PostgresHost != "" {
-		config.Database.DatabaseType = "postgres"
-	}
-
 	return config, err
 }
