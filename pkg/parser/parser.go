@@ -42,7 +42,7 @@ func (c *Parser) Parse() (*types.Swagger, error) {
 		return nil, err
 	}
 
-	c.opts.Logger.Info("data", zap.Any("swagger", data))
+	c.opts.Logger.Debug("data", zap.Any("swagger", data))
 
 	return data, nil
 }
