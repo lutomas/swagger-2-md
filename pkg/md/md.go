@@ -57,6 +57,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 	}
 
 	for k, v := range schemas {
+		// Write TYPE
 		_, err = fmt.Fprintf(w.outFile, "# %s \n\n", k)
 		if err != nil {
 			return err
@@ -95,7 +96,16 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 		}
 	}
 
-	if v.Properties == nil {
+	for _, inc := range v.AllOf {
+		if inc.Ref != nil {
+			_, err = fmt.Fprintf(w.outFile, "## INCLUDE MANUALLY: %s\n\n", *inc.Ref)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if v.Properties == nil && len(v.AllOf) == 0 {
 		return nil
 	}
 	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
@@ -107,9 +117,19 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 		return err
 	}
 
+	return w.writeIncludedObjectType(v)
+}
+
+func (w *Writer) writeIncludedObjectType(v *types.ObjectType) (err error) {
 	err = w.writeProperties(v.Required, v.Properties)
 	if err != nil {
 		return err
+	}
+
+	if len(v.AllOf) > 0 {
+		for _, inc := range v.AllOf {
+			w.writeIncludedObjectType(inc)
+		}
 	}
 
 	_, err = fmt.Fprintln(w.outFile)
