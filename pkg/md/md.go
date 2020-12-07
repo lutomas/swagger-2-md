@@ -176,14 +176,25 @@ func preparePropertyType(v *types.ObjectType) string {
 		if v.Ref != nil {
 			return *v.Ref
 		}
+		// Compound type
 		if len(v.AllOf) > 0 {
 			return "--AllOf--"
 		}
 		return "?"
 	}
 
+	if t == "array" {
+		itemType := "?"
+		// Check whats the type of array items
+		if v.Items != nil {
+			itemType = preparePropertyType(v.Items)
+		}
+		t = fmt.Sprintf("%s [%s]", t, itemType)
+		return t
+	}
+
 	if v.Format != nil {
-		t = fmt.Sprintf("%s(%s)", t, *v.Format)
+		t = fmt.Sprintf("%s (%s)", t, *v.Format)
 	}
 
 	return t

@@ -10,4 +10,5 @@ type ObjectType struct {
 	Properties  map[string]*ObjectType `json:"properties,omitempty"`
 	Example     interface{}            `json:"example,omitempty"`
 	AllOf       []*ObjectType          `json:"allOf,omitempty"`
+	Items       *ObjectType            `json:"items,omitempty"`
 }
