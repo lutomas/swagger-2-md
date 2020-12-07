@@ -197,6 +197,18 @@ func preparePropertyType(v *types.ObjectType) string {
 		t = fmt.Sprintf("%s (%s)", t, *v.Format)
 	}
 
+	if len(v.Enum) > 0 {
+		enums := make([]string, 0)
+		for _, enum := range v.Enum {
+			enums = append(enums, "`"+enum+"`")
+		}
+
+		sort.Strings(enums)
+		e := strings.Join(enums, "<br/> - ")
+
+		t = t + "<br/><br/>*allowed values:<br/> - " + e + "*"
+	}
+
 	return t
 }
 
