@@ -117,11 +117,11 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 	if v.Properties == nil && len(v.AllOf) == 0 {
 		return nil
 	}
-	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
+	_, err = fmt.Fprintf(w.outFile, "| Field || Type | Mandatory | Description |\n")
 	if err != nil {
 		return err
 	}
-	_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|\n")
+	_, err = fmt.Fprintf(w.outFile, "|------||------|------|------|\n")
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (w *Writer) writeProperties(required []string, properties map[string]*types
 	for _, k := range propNames {
 		v := properties[k]
 		// | prop | type | mandatory | description | example |
-		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", k, preparePropertyType(v), isRequired(required, k), prepareDescription(v.Description))
+		_, err = fmt.Fprintf(w.outFile, "|%s||%s|%s|%s|\n", k, preparePropertyType(v), isRequired(required, k), prepareDescription(v.Description))
 	}
 
 	return nil
