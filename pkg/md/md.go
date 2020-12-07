@@ -99,7 +99,7 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 			return err
 		}
 
-		_, err = fmt.Fprintf(w.outFile, "| %s |\n\n", v.Type)
+		_, err = fmt.Fprintf(w.outFile, "| %s |\n\n", preparePropertyType(v))
 		if err != nil {
 			return err
 		}
@@ -175,6 +175,9 @@ func preparePropertyType(v *types.ObjectType) string {
 	if t == "" {
 		if v.Ref != nil {
 			return *v.Ref
+		}
+		if len(v.AllOf) > 0 {
+			return "--AllOf--"
 		}
 		return "?"
 	}
