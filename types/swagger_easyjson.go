@@ -28,7 +28,7 @@ func easyjson5ac9ea7aDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeString()
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -115,7 +115,7 @@ func easyjson5ac9ea7aDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeString()
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()

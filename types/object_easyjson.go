@@ -28,7 +28,7 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeString()
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -197,6 +197,38 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 					in.AddError((*out.Items).UnmarshalJSON(data))
 				}
 			}
+		case "additionalProperties":
+			if in.IsNull() {
+				in.Skip()
+				out.AdditionalProperties = nil
+			} else {
+				if out.AdditionalProperties == nil {
+					out.AdditionalProperties = new(ObjectType)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.AdditionalProperties).UnmarshalJSON(data))
+				}
+			}
+		case "maxLength":
+			if in.IsNull() {
+				in.Skip()
+				out.MaxLength = nil
+			} else {
+				if out.MaxLength == nil {
+					out.MaxLength = new(int64)
+				}
+				*out.MaxLength = int64(in.Int64())
+			}
+		case "minLength":
+			if in.IsNull() {
+				in.Skip()
+				out.MinLength = nil
+			} else {
+				if out.MinLength == nil {
+					out.MinLength = new(int64)
+				}
+				*out.MinLength = int64(in.Int64())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -315,6 +347,21 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 		const prefix string = ",\"items\":"
 		out.RawString(prefix)
 		out.Raw((*in.Items).MarshalJSON())
+	}
+	if in.AdditionalProperties != nil {
+		const prefix string = ",\"additionalProperties\":"
+		out.RawString(prefix)
+		out.Raw((*in.AdditionalProperties).MarshalJSON())
+	}
+	if in.MaxLength != nil {
+		const prefix string = ",\"maxLength\":"
+		out.RawString(prefix)
+		out.Int64(int64(*in.MaxLength))
+	}
+	if in.MinLength != nil {
+		const prefix string = ",\"minLength\":"
+		out.RawString(prefix)
+		out.Int64(int64(*in.MinLength))
 	}
 	out.RawByte('}')
 }

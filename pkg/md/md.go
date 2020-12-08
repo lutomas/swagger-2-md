@@ -194,6 +194,9 @@ func (w *Writer) makeProperties(o *types.ObjectType, r *types.MDSchemasType) {
 		}
 	}
 	// AdditionalProperties
+	if o.AdditionalProperties != nil {
+		r.AddProperty(w.makeAdditionalProperty(o.AdditionalProperties))
+	}
 
 	// Object
 	for propName, propType := range o.Properties {
@@ -212,6 +215,17 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 	}
 
 	return p
+}
+
+func (w *Writer) makeAdditionalProperty(o *types.ObjectType) *types.MDProperty {
+	return &types.MDProperty{
+		P:           nil,
+		Name:        "--any--",
+		Type:        w.getType(o),
+		Mandatory:   "no",
+		Description: prepareDescription(o.Description),
+		SubElement:  nil,
+	}
 }
 
 func prepareDescription(description *string) string {
