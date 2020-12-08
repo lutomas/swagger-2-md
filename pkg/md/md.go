@@ -198,6 +198,11 @@ func (w *Writer) makeProperties(o *types.ObjectType, r *types.MDSchemasType) {
 		r.AddProperty(w.makeAdditionalProperty(o.AdditionalProperties))
 	}
 
+	// Ref
+	if o.Ref != nil {
+		w.makeProperties(w.refsMap[*o.Ref], r)
+	}
+
 	// Object
 	for propName, propType := range o.Properties {
 		r.AddProperty(w.makeProperty(o.Required, propName, propType))
