@@ -96,6 +96,12 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		}
 
 		if len(v.Properties) > 0 {
+			depth := getPropertiesDepth(v.Properties)
+			_, err = fmt.Fprintf(w.outFile, "## Properties depth\n%d\n\n", depth)
+			if err != nil {
+				return err
+			}
+
 			_, err = fmt.Fprintf(w.outFile, "## Details\n%s\n\n", v.Description)
 			if err != nil {
 				return err
@@ -126,6 +132,21 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 	}
 
 	return nil
+}
+
+func getPropertiesDepth(properties []*types.MDProperty) int {
+	maxDepth := 1
+	for _, p := range properties {
+		depth := 1
+		if len(p.Properties) > 0 {
+			depth = 1 + getPropertiesDepth(p.Properties)
+		}
+		if depth > maxDepth {
+			maxDepth = depth
+		}
+	}
+
+	return maxDepth
 }
 
 func (w *Writer) MDSchemasType(v *types.ObjectType) *types.MDSchemasType {
@@ -186,7 +207,7 @@ func (w *Writer) getType(v *types.ObjectType) string {
 	return strings.ReplaceAll(t, "\n", "<br/>")
 }
 
-func (w *Writer) makeProperties(o *types.ObjectType, r *types.MDSchemasType) {
+func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 	// AllOff
 	if len(o.AllOf) > 0 {
 		for _, v := range o.AllOf {
@@ -216,7 +237,15 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 		Type:        w.getType(o),
 		Mandatory:   isRequired(requiredProps, name),
 		Description: prepareDescription(o.Description),
-		SubElement:  nil,
+	}
+
+	switch p.Type {
+	case "array":
+		w.makeProperties(w.refsMap[*o.Items.Ref], p)
+	case "object":
+		if o.Ref != nil {
+			w.makeProperties(w.refsMap[*o.Ref], p)
+		}
 	}
 
 	return p
@@ -229,7 +258,6 @@ func (w *Writer) makeAdditionalProperty(o *types.ObjectType) *types.MDProperty {
 		Type:        w.getType(o),
 		Mandatory:   "no",
 		Description: prepareDescription(o.Description),
-		SubElement:  nil,
 	}
 }
 

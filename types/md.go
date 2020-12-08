@@ -1,5 +1,9 @@
 package types
 
+type Properties interface {
+	AddProperty(p *MDProperty)
+}
+
 type MDSchemasType struct {
 	O                    *ObjectType // Original object
 	Name                 string
@@ -24,13 +28,13 @@ type MDProperty struct {
 	Type        string
 	Mandatory   string
 	Description string
-	SubElement  []*MDSchemasType
+	Properties  []*MDProperty
 }
 
-func (o *MDProperty) AddSubElement(md *MDSchemasType) {
-	if o.SubElement == nil {
-		o.SubElement = []*MDSchemasType{md}
+func (o *MDProperty) AddProperty(p *MDProperty) {
+	if o.Properties == nil {
+		o.Properties = []*MDProperty{p}
 		return
 	}
-	o.SubElement = append(o.SubElement, md)
+	o.Properties = append(o.Properties, p)
 }
