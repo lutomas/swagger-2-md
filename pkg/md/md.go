@@ -3,11 +3,11 @@ package md
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 
-	"github.com/lutomas/swagger-2-md/types"
 	"go.uber.org/zap"
+
+	"github.com/lutomas/swagger-2-md/types"
 )
 
 type Opts struct {
@@ -58,176 +58,160 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 	}
 
 	w.refsMap = make(map[string]*types.ObjectType)
-	types := make([]string, 0)
+	// types := make([]string, 0)
 	for k, v := range schemas {
-		types = append(types, k)
+		// types = append(types, k)
 		w.refsMap["#/components/schemas/"+k] = v
 	}
 
-	// Sort prop names
-	sort.Strings(types)
+	res := make([]*types.MDSchemasType, 0)
+	for k, v := range schemas {
+		t := w.MDSchemasType(v)
+		t.Name = k
 
-	for _, k := range types {
-		v := schemas[k]
+		res = append(res, t)
+	}
+
+	//
+	// // Sort prop names
+	// sort.Strings(types)
+	//
+	for _, v := range res {
 		// Write TYPE
-		_, err = fmt.Fprintf(w.outFile, "# %s \n\n", k)
+		_, err = fmt.Fprintf(w.outFile, "# %s \n\n", v.Name)
 		if err != nil {
 			return err
 		}
 
-		if v.Description != nil {
-			_, err = fmt.Fprintf(w.outFile, "%s\n\n", strings.ReplaceAll(*v.Description, "\n", "<br/>"))
+		_, err = fmt.Fprintf(w.outFile, "## Type\n%s\n\n", v.Type)
+		if err != nil {
+			return err
+		}
+
+		if v.Description != "" {
+			_, err = fmt.Fprintf(w.outFile, "## Description\n%s\n\n", v.Description)
 			if err != nil {
 				return err
 			}
 		}
 
-		if err = w.writeObjectType(v); err != nil {
-			return err
-		}
-	}
+		if len(v.Properties) > 0 {
+			_, err = fmt.Fprintf(w.outFile, "## Details\n%s\n\n", v.Description)
+			if err != nil {
+				return err
+			}
 
-	return nil
-}
+			// Write props
+			_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|\n")
+			if err != nil {
+				return err
+			}
 
-func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
-
-	if v.Type != "object" {
-		_, err = fmt.Fprintf(w.outFile, "| Type |\n")
-		if err != nil {
-			return err
-		}
-		_, err = fmt.Fprintf(w.outFile, "|------|\n")
-		if err != nil {
-			return err
-		}
-
-		_, err = fmt.Fprintf(w.outFile, "| %s |\n\n", preparePropertyType(v))
-		if err != nil {
-			return err
-		}
-	}
-
-	//for _, inc := range v.AllOf {
-	//	if inc.Ref != nil {
-	//		_, err = fmt.Fprintf(w.outFile, "## INCLUDE MANUALLY: %s\n\n", *inc.Ref)
-	//		if err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
-
-	if v.Properties == nil && len(v.AllOf) == 0 {
-		return nil
-	}
-	_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|\n")
-	if err != nil {
-		return err
-	}
-
-	for _, inc := range v.AllOf {
-		if inc.Ref != nil {
-			r, ok := w.refsMap[*inc.Ref]
-			if ok {
-				err = w.writeProperties(r.Required, r.Properties)
+			for _, p := range v.Properties {
+				_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
 				if err != nil {
 					return err
 				}
 			}
-		}
-	}
 
-	return w.writeIncludedObjectType(v)
-}
-
-func (w *Writer) writeIncludedObjectType(v *types.ObjectType) (err error) {
-	err = w.writeProperties(v.Required, v.Properties)
-	if err != nil {
-		return err
-	}
-
-	if len(v.AllOf) > 0 {
-		for _, inc := range v.AllOf {
-			err = w.writeIncludedObjectType(inc)
+			_, err = fmt.Fprintln(w.outFile)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	_, err = fmt.Fprintln(w.outFile)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
-func (w *Writer) writeProperties(required []string, properties map[string]*types.ObjectType) (err error) {
-	if properties == nil {
-		return nil
+func (w *Writer) MDSchemasType(v *types.ObjectType) *types.MDSchemasType {
+	r := &types.MDSchemasType{
+		O:                    v,
+		Description:          prepareDescription(v.Description),
+		AllOff:               len(v.AllOf) > 0,
+		AdditionalProperties: v.AdditionalProperties != nil,
 	}
 
-	propNames := make([]string, 0)
-	for k, _ := range properties {
-		propNames = append(propNames, k)
-	}
+	// Type
+	r.Type = w.getType(v)
 
-	// Sort prop names
-	sort.Strings(propNames)
+	w.makeProperties(v, r)
 
-	for _, k := range propNames {
-		v := properties[k]
-		// | prop | type | mandatory | description | example |
-		_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", k, preparePropertyType(v), isRequired(required, k), prepareDescription(v.Description))
-	}
-
-	return nil
+	return r
 }
 
-func preparePropertyType(v *types.ObjectType) string {
+func (w *Writer) getType(v *types.ObjectType) string {
+	if v == nil {
+		return "--unknown-type---"
+	}
+	if len(v.AllOf) > 0 {
+		return "--AllOff--"
+	} else if v.AdditionalProperties != nil {
+		return "--AdditionalProperties--"
+	} else if v.Ref != nil {
+		return w.getType(w.refsMap[*v.Ref])
+	}
+
+	if v.Type == "" {
+		return "--unspecified-type---"
+	}
+
 	t := v.Type
-	if t == "" {
-		if v.Ref != nil {
-			return *v.Ref
-		}
-		// Compound type
-		if len(v.AllOf) > 0 {
-			return "--AllOf--"
-		}
-		return "?"
-	}
 
-	if t == "array" {
-		itemType := "?"
-		// Check whats the type of array items
-		if v.Items != nil {
-			itemType = preparePropertyType(v.Items)
-		}
-		t = fmt.Sprintf("%s [%s]", t, itemType)
-		return t
-	}
-
+	// Check format
 	if v.Format != nil {
-		t = fmt.Sprintf("%s (%s)", t, *v.Format)
+		t = t + "\n- format: " + *v.Format
 	}
 
-	if len(v.Enum) > 0 {
-		enums := make([]string, 0)
-		for _, enum := range v.Enum {
-			enums = append(enums, "`"+enum+"`")
+	switch t {
+	case "string":
+		// Check enums
+		if v.Enum != nil {
+			t = t + "\n- one of: " + strings.Join(v.Enum, ", ")
 		}
-
-		sort.Strings(enums)
-		e := strings.Join(enums, ", ")
-
-		t = t + " (one of: " + e + ")"
+		// Check minlength
+		if v.MinLength != nil {
+			t = fmt.Sprintf("%s\n- minlength: %d", t, *v.MinLength)
+		}
+		// Check maxlength
+		if v.MaxLength != nil {
+			t = fmt.Sprintf("%s\n- maxLength: %d", t, *v.MaxLength)
+		}
 	}
 
-	return t
+	return strings.ReplaceAll(t, "\n", "<br/>")
+}
+
+func (w *Writer) makeProperties(o *types.ObjectType, r *types.MDSchemasType) {
+	// AllOff
+	if len(o.AllOf) > 0 {
+		for _, v := range o.AllOf {
+			w.makeProperties(v, r)
+		}
+	}
+	// AdditionalProperties
+
+	// Object
+	for propName, propType := range o.Properties {
+		r.AddProperty(w.makeProperty(o.Required, propName, propType))
+	}
+}
+
+func (w *Writer) makeProperty(requiredProps []string, name string, o *types.ObjectType) (p *types.MDProperty) {
+	p = &types.MDProperty{
+		P:           o,
+		Name:        name,
+		Type:        w.getType(o),
+		Mandatory:   isRequired(requiredProps, name),
+		Description: prepareDescription(o.Description),
+		SubElement:  nil,
+	}
+
+	return p
 }
 
 func prepareDescription(description *string) string {
