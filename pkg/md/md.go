@@ -17,6 +17,7 @@ type Opts struct {
 type Writer struct {
 	outFile *os.File
 	opts    *Opts
+	refsMap map[string]*types.ObjectType
 }
 
 func New(opts *Opts) (*Writer, error) {
@@ -56,9 +57,11 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		w.opts.Logger.Warn("No schemas to write.")
 	}
 
+	w.refsMap = make(map[string]*types.ObjectType)
 	types := make([]string, 0)
-	for k, _ := range schemas {
+	for k, v := range schemas {
 		types = append(types, k)
+		w.refsMap["#/components/schemas/"+k] = v
 	}
 
 	// Sort prop names
@@ -105,14 +108,14 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 		}
 	}
 
-	for _, inc := range v.AllOf {
-		if inc.Ref != nil {
-			_, err = fmt.Fprintf(w.outFile, "## INCLUDE MANUALLY: %s\n\n", *inc.Ref)
-			if err != nil {
-				return err
-			}
-		}
-	}
+	//for _, inc := range v.AllOf {
+	//	if inc.Ref != nil {
+	//		_, err = fmt.Fprintf(w.outFile, "## INCLUDE MANUALLY: %s\n\n", *inc.Ref)
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
 
 	if v.Properties == nil && len(v.AllOf) == 0 {
 		return nil
@@ -126,6 +129,18 @@ func (w *Writer) writeObjectType(v *types.ObjectType) (err error) {
 		return err
 	}
 
+	for _, inc := range v.AllOf {
+		if inc.Ref != nil {
+			r, ok := w.refsMap[*inc.Ref]
+			if ok {
+				err = w.writeProperties(r.Required, r.Properties)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
 	return w.writeIncludedObjectType(v)
 }
 
@@ -137,7 +152,10 @@ func (w *Writer) writeIncludedObjectType(v *types.ObjectType) (err error) {
 
 	if len(v.AllOf) > 0 {
 		for _, inc := range v.AllOf {
-			w.writeIncludedObjectType(inc)
+			err = w.writeIncludedObjectType(inc)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

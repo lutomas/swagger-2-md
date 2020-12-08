@@ -185,6 +185,18 @@ func easyjsonE44bcf2dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 				}
 				in.Delim(']')
 			}
+		case "items":
+			if in.IsNull() {
+				in.Skip()
+				out.Items = nil
+			} else {
+				if out.Items == nil {
+					out.Items = new(ObjectType)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.Items).UnmarshalJSON(data))
+				}
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -298,6 +310,11 @@ func easyjsonE44bcf2dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 			}
 			out.RawByte(']')
 		}
+	}
+	if in.Items != nil {
+		const prefix string = ",\"items\":"
+		out.RawString(prefix)
+		out.Raw((*in.Items).MarshalJSON())
 	}
 	out.RawByte('}')
 }
