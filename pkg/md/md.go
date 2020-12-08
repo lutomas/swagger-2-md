@@ -222,9 +222,9 @@ func preparePropertyType(v *types.ObjectType) string {
 		}
 
 		sort.Strings(enums)
-		e := strings.Join(enums, "<br/> - ")
+		e := strings.Join(enums, ", ")
 
-		t = t + "<br/><br/>*allowed values:<br/> - " + e + "*"
+		t = t + " (one of: " + e + ")"
 	}
 
 	return t
