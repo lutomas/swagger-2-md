@@ -3,6 +3,7 @@ package md
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"go.uber.org/zap"
@@ -72,10 +73,11 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		res = append(res, t)
 	}
 
-	//
-	// // Sort prop names
-	// sort.Strings(types)
-	//
+	// Sort
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].Name < res[j].Name
+	})
+
 	for _, v := range res {
 		// Write TYPE
 		_, err = fmt.Fprintf(w.outFile, "# %s \n\n", v.Name)
@@ -96,6 +98,10 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		}
 
 		if len(v.Properties) > 0 {
+			sort.Slice(v.Properties, func(i, j int) bool {
+				return v.Properties[i].Name < v.Properties[j].Name
+			})
+
 			depth := getPropertiesDepth(v.Properties)
 			_, err = fmt.Fprintf(w.outFile, "## Properties depth\n%d\n\n", depth)
 			if err != nil {
