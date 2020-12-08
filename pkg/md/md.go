@@ -224,11 +224,11 @@ func (w *Writer) getType(v *types.ObjectType) string {
 	case "string":
 		// Check enums
 		if v.Enum != nil {
-			t = t + "\n- one of: " + strings.Join(v.Enum, ", ")
+			t = t + "\n- one of: `" + strings.Join(v.Enum, "`, `") + "`"
 		}
 		// Check minlength
 		if v.MinLength != nil {
-			t = fmt.Sprintf("%s\n- minlength: %d", t, *v.MinLength)
+			t = fmt.Sprintf("%s\n- minLength: %d", t, *v.MinLength)
 		}
 		// Check maxlength
 		if v.MaxLength != nil {
