@@ -114,17 +114,39 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			}
 
 			// Write props
-			_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
+			subProps := strings.Repeat("|", depth)
+			_, err = fmt.Fprintf(w.outFile, "| Field %s Type | Mandatory | Description |\n", subProps)
 			if err != nil {
 				return err
 			}
-			_, err = fmt.Fprintf(w.outFile, "|------|------|------|------|\n")
+			_, err = fmt.Fprintf(w.outFile, "|------|%s------|------|\n", strings.Repeat("------|", depth))
 			if err != nil {
 				return err
 			}
 
+			subPropertiesFn := func(in *types.MDProperty) error {
+				if len(in.Properties) <= 0 {
+					return nil
+				}
+
+				sort.Slice(in.Properties, func(i, j int) bool {
+					return in.Properties[i].Name < in.Properties[j].Name
+				})
+				for _, p := range in.Properties {
+					_, err = fmt.Fprintf(w.outFile, "||%s|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
+					if err != nil {
+						return err
+					}
+				}
+				return nil
+			}
+
 			for _, p := range v.Properties {
-				_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
+				_, err = fmt.Fprintf(w.outFile, "|%s%s%s|%s|%s|\n", p.Name, subProps, p.Type, p.Mandatory, p.Description)
+				if err != nil {
+					return err
+				}
+				err = subPropertiesFn(p)
 				if err != nil {
 					return err
 				}
