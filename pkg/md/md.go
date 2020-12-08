@@ -103,9 +103,13 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			})
 
 			depth := getPropertiesDepth(v.Properties)
-			_, err = fmt.Fprintf(w.outFile, "## Properties depth\n%d\n\n", depth)
+			_, err = fmt.Fprintf(w.outFile, "## Max field depth\n%d\n\n", depth)
 			if err != nil {
 				return err
+			}
+
+			if depth > 2 {
+				return fmt.Errorf("max supported field depth - 2, unsupported field depth: %d", depth)
 			}
 
 			_, err = fmt.Fprintf(w.outFile, "## Details\n%s\n\n", v.Description)
