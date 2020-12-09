@@ -197,6 +197,16 @@ func (w *Writer) MDSchemasType(v *types.ObjectType) *types.MDSchemasType {
 	return r
 }
 
+func (w *Writer) getDescription(v *types.ObjectType) string {
+	if v == nil {
+		return "--unspecified-description---"
+	}
+	if v.Ref != nil {
+		return prepareDescription(w.refsMap[*v.Ref].Description)
+	}
+
+	return prepareDescription(v.Description)
+}
 func (w *Writer) getType(v *types.ObjectType) string {
 	if v == nil {
 		return "--unknown-type---"
@@ -270,7 +280,7 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 		Name:        name,
 		Type:        w.getType(o),
 		Mandatory:   isRequired(requiredProps, name),
-		Description: prepareDescription(o.Description),
+		Description: w.getDescription(o),
 	}
 
 	switch p.Type {
