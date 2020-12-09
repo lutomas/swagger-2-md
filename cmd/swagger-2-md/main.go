@@ -56,6 +56,7 @@ func main() {
 	mdWriter, err := md.New(&md.Opts{
 		OutFilePath: outFilePath,
 		Logger:      logger,
+		CustomCSS:   cfg.CustomCSS,
 	})
 	if err != nil {
 		logger.Error("FAILED CREATE WRITER", zap.Error(err))

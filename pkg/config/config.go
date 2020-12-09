@@ -9,10 +9,6 @@ type (
 	// Main app configurations
 	MainAppConfig struct {
 		Logger
-	}
-
-	// Main app configurations
-	MainAppCliConfig struct {
-		Logger
+		CustomCSS string `default:"" envconfig:"CUSTOM_CSS"`
 	}
 )

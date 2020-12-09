@@ -14,6 +14,7 @@ import (
 type Opts struct {
 	Logger      *zap.Logger
 	OutFilePath *string
+	CustomCSS   string
 }
 type Writer struct {
 	outFile *os.File
@@ -56,6 +57,13 @@ func (w *Writer) Write(v *types.Swagger) error {
 func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 	if schemas == nil {
 		w.opts.Logger.Warn("No schemas to write.")
+	}
+
+	if w.opts.CustomCSS != "" {
+		_, err = fmt.Fprintf(w.outFile, "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"%s\" /> \n\n", w.opts.CustomCSS)
+		if err != nil {
+			return err
+		}
 	}
 
 	w.refsMap = make(map[string]*types.ObjectType)
