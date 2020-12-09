@@ -123,7 +123,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			if err != nil {
 				return err
 			}
-			_, err = fmt.Fprintf(w.outFile, "|------|%s------|------|\n", strings.Repeat("------|", depth))
+			_, err = fmt.Fprintf(w.outFile, "|:------|:%s:------|:------|\n", strings.Repeat("------|:", depth))
 			if err != nil {
 				return err
 			}
