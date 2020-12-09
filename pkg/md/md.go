@@ -248,7 +248,9 @@ func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 	}
 	// AdditionalProperties
 	if o.AdditionalProperties != nil {
-		r.AddProperty(w.makeAdditionalProperty(o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("--additionalProp1--", o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("--additionalProp2--", o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("--additionalProp3--", o.AdditionalProperties))
 	}
 
 	// Ref
@@ -283,10 +285,10 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 	return p
 }
 
-func (w *Writer) makeAdditionalProperty(o *types.ObjectType) *types.MDProperty {
+func (w *Writer) makeAdditionalProperty(name string, o *types.ObjectType) *types.MDProperty {
 	return &types.MDProperty{
 		P:           nil,
-		Name:        "--any--",
+		Name:        name,
 		Type:        w.getType(o),
 		Mandatory:   "no",
 		Description: prepareDescription(o.Description),
