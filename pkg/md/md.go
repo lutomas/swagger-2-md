@@ -248,9 +248,9 @@ func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 	}
 	// AdditionalProperties
 	if o.AdditionalProperties != nil {
-		r.AddProperty(w.makeAdditionalProperty("--additionalProp1--", o.AdditionalProperties))
-		r.AddProperty(w.makeAdditionalProperty("--additionalProp2--", o.AdditionalProperties))
-		r.AddProperty(w.makeAdditionalProperty("--additionalProp3--", o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("_anyProp1", o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("_anyProp2", o.AdditionalProperties))
+		r.AddProperty(w.makeAdditionalProperty("_anyProp3", o.AdditionalProperties))
 	}
 
 	// Ref
@@ -279,6 +279,12 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 	case "object":
 		if o.Ref != nil {
 			w.makeProperties(w.refsMap[*o.Ref], p)
+		}
+	}
+
+	if len(o.AllOf) > 0 {
+		for _, a := range o.AllOf {
+			w.makeProperties(a, p)
 		}
 	}
 
