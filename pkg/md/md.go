@@ -116,27 +116,22 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 				return err
 			}
 
-			if depth > 2 {
-				return fmt.Errorf("max supported field depth - 2, unsupported field depth: %d", depth)
-			}
-
 			_, err = fmt.Fprintf(w.outFile, "## Details\n%s\n\n", v.Description)
 			if err != nil {
 				return err
 			}
 
 			// Write props
-			subProps := strings.Repeat("|", depth)
-			_, err = fmt.Fprintf(w.outFile, "| Field %s Type | Mandatory | Description |\n", subProps)
+			_, err = fmt.Fprintf(w.outFile, "| Field | Type | Mandatory | Description |\n")
 			if err != nil {
 				return err
 			}
-			_, err = fmt.Fprintf(w.outFile, "|:------|:%s:------|:------|\n", strings.Repeat("------|:", depth))
+			_, err = fmt.Fprintf(w.outFile, "|:------|:------|:------|:------|\n")
 			if err != nil {
 				return err
 			}
 
-			subPropertiesFn := func(in *types.MDProperty) error {
+			subPropertiesFn := func(prefix string, in *types.MDProperty) error {
 				if len(in.Properties) <= 0 {
 					return nil
 				}
@@ -145,7 +140,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 					return in.Properties[i].Name < in.Properties[j].Name
 				})
 				for _, p := range in.Properties {
-					_, err = fmt.Fprintf(w.outFile, "||**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
+					_, err = fmt.Fprintf(w.outFile, "|*%s*.**%s**|%s|%s|%s|\n", prefix, p.Name, p.Type, p.Mandatory, p.Description)
 					if err != nil {
 						return err
 					}
@@ -154,11 +149,11 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			}
 
 			for _, p := range v.Properties {
-				_, err = fmt.Fprintf(w.outFile, "|**%s**%s%s|%s|%s|\n", p.Name, subProps, p.Type, p.Mandatory, p.Description)
+				_, err = fmt.Fprintf(w.outFile, "|**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
 				if err != nil {
 					return err
 				}
-				err = subPropertiesFn(p)
+				err = subPropertiesFn(makeSubPropertyPrefix(p), p)
 				if err != nil {
 					return err
 				}
@@ -172,6 +167,14 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 	}
 
 	return nil
+}
+
+func makeSubPropertyPrefix(p *types.MDProperty) string {
+	prefix := p.Name
+	if p.Type == "array" {
+		prefix = prefix + "[i]"
+	}
+	return prefix
 }
 
 func getPropertiesDepth(properties []*types.MDProperty) int {
