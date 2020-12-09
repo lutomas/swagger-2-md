@@ -145,7 +145,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 					return in.Properties[i].Name < in.Properties[j].Name
 				})
 				for _, p := range in.Properties {
-					_, err = fmt.Fprintf(w.outFile, "||%s|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
+					_, err = fmt.Fprintf(w.outFile, "||**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
 					if err != nil {
 						return err
 					}
@@ -154,7 +154,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 			}
 
 			for _, p := range v.Properties {
-				_, err = fmt.Fprintf(w.outFile, "|%s%s%s|%s|%s|\n", p.Name, subProps, p.Type, p.Mandatory, p.Description)
+				_, err = fmt.Fprintf(w.outFile, "|**%s**%s%s|%s|%s|\n", p.Name, subProps, p.Type, p.Mandatory, p.Description)
 				if err != nil {
 					return err
 				}
