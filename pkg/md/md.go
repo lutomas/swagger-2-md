@@ -249,11 +249,11 @@ func (w *Writer) getType(v *types.ObjectType) string {
 		}
 		// Check minlength
 		if v.MinLength != nil {
-			t = fmt.Sprintf("%s\n- minLength: %d", t, *v.MinLength)
+			t = fmt.Sprintf("%s\n- min-length: %d", t, *v.MinLength)
 		}
 		// Check maxlength
 		if v.MaxLength != nil {
-			t = fmt.Sprintf("%s\n- maxLength: %d", t, *v.MaxLength)
+			t = fmt.Sprintf("%s\n- max-length: %d", t, *v.MaxLength)
 		}
 	}
 
