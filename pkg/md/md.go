@@ -148,14 +148,29 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 				return nil
 			}
 
-			for _, p := range v.Properties {
-				_, err = fmt.Fprintf(w.outFile, "|**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
-				if err != nil {
-					return err
+			if v.Type != "array" {
+				for _, p := range v.Properties {
+					_, err = fmt.Fprintf(w.outFile, "|**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
+					if err != nil {
+						return err
+					}
+					err = subPropertiesFn(makeSubPropertyPrefix(p), p)
+					if err != nil {
+						return err
+					}
 				}
-				err = subPropertiesFn(makeSubPropertyPrefix(p), p)
-				if err != nil {
-					return err
+			} else {
+				// Array is special case and needs to be formatted differently.
+				for _, p := range v.Properties {
+					_, err = fmt.Fprintf(w.outFile, "|*%s*.**%s**|%s|%s|%s|\n", "[i]", p.Name, p.Type, p.Mandatory, p.Description)
+					if err != nil {
+						return err
+					}
+
+					err = subPropertiesFn(makeSubPropertyPrefix(p), p)
+					if err != nil {
+						return err
+					}
 				}
 			}
 
@@ -282,6 +297,11 @@ func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 	// Object
 	for propName, propType := range o.Properties {
 		r.AddProperty(w.makeProperty(o.Required, propName, propType))
+	}
+
+	// Array
+	if o.Type == "array" && o.Items != nil {
+		w.makeProperties(o.Items, r)
 	}
 }
 
