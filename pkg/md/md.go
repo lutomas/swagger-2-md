@@ -306,6 +306,12 @@ func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 }
 
 func (w *Writer) makeProperty(requiredProps []string, name string, o *types.ObjectType) (p *types.MDProperty) {
+	defer func() {
+		if r := recover(); r != nil {
+			w.opts.Logger.Error("failed to makeProperty", zap.String("name", name), zap.Any("obj", o), zap.Any("error", r))
+		}
+	}()
+
 	p = &types.MDProperty{
 		P:           o,
 		Name:        name,
@@ -316,7 +322,11 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 
 	switch p.Type {
 	case "array":
-		w.makeProperties(w.refsMap[*o.Items.Ref], p)
+		if o.Items.Ref != nil {
+			w.makeProperties(w.refsMap[*o.Items.Ref], p)
+		} else {
+			w.makeProperties(o.Items, p)
+		}
 	case "object":
 		if o.Ref != nil {
 			w.makeProperties(w.refsMap[*o.Ref], p)
