@@ -1,15 +1,15 @@
 package types
 
 type OpenApiFileWrapper struct {
-	Openapi    string      `json:"openapi"`
-	Components *Components `json:"components"`
+	Openapi    string             `json:"openapi"`
+	Components *OpenApiComponents `json:"components"`
 }
 
-type Components struct {
-	Schemas Schema `json:"schemas"`
+type OpenApiComponents struct {
+	Schemas OpenApiSchema `json:"schemas"`
 }
 
-type Schema = map[string]*OpenApiType
+type OpenApiSchema = map[string]*OpenApiType
 
 type OpenApiType struct {
 	Type                 string                  `json:"type"`

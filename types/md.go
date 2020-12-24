@@ -1,7 +1,7 @@
 package types
 
-type Properties interface {
-	AddProperty(p *MDProperty)
+type MDProperties interface {
+	AddMDProperty(p *MDProperty)
 }
 
 type MDSchemasType struct {
@@ -14,7 +14,7 @@ type MDSchemasType struct {
 	Properties           []*MDProperty
 }
 
-func (o *MDSchemasType) AddProperty(p *MDProperty) {
+func (o *MDSchemasType) AddMDProperty(p *MDProperty) {
 	if o.Properties == nil {
 		o.Properties = []*MDProperty{p}
 		return
@@ -31,7 +31,7 @@ type MDProperty struct {
 	Properties  []*MDProperty
 }
 
-func (o *MDProperty) AddProperty(p *MDProperty) {
+func (o *MDProperty) AddMDProperty(p *MDProperty) {
 	if o.Properties == nil {
 		o.Properties = []*MDProperty{p}
 		return

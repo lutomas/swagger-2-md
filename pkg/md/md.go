@@ -54,7 +54,7 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 	return nil
 }
 
-func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
+func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 	if schemas == nil {
 		w.opts.Logger.Warn("No schemas to write.")
 	}
@@ -218,7 +218,7 @@ func (w *Writer) MDSchemasType(v *types.OpenApiType) *types.MDSchemasType {
 	// Type
 	r.Type = w.getType(v)
 
-	w.makeProperties(v, r)
+	w.prepareMDProperties(v, r)
 
 	return r
 }
@@ -275,37 +275,37 @@ func (w *Writer) getType(v *types.OpenApiType) string {
 	return strings.ReplaceAll(t, "\n", "<br/>")
 }
 
-func (w *Writer) makeProperties(o *types.OpenApiType, r types.Properties) {
+func (w *Writer) prepareMDProperties(o *types.OpenApiType, r types.MDProperties) {
 	// AllOff
 	if len(o.AllOf) > 0 {
 		for _, v := range o.AllOf {
-			w.makeProperties(v, r)
+			w.prepareMDProperties(v, r)
 		}
 	}
 	// AdditionalProperties
 	if o.AdditionalProperties != nil {
-		r.AddProperty(w.makeAdditionalProperty("additionalProp1", o.AdditionalProperties))
-		r.AddProperty(w.makeAdditionalProperty("additionalProp2", o.AdditionalProperties))
-		r.AddProperty(w.makeAdditionalProperty("additionalProp3", o.AdditionalProperties))
+		r.AddMDProperty(w.makeAdditionalMDProperty("additionalProp1", o.AdditionalProperties))
+		r.AddMDProperty(w.makeAdditionalMDProperty("additionalProp2", o.AdditionalProperties))
+		r.AddMDProperty(w.makeAdditionalMDProperty("additionalProp3", o.AdditionalProperties))
 	}
 
 	// Ref
 	if o.Ref != nil {
-		w.makeProperties(w.refsMap[*o.Ref], r)
+		w.prepareMDProperties(w.refsMap[*o.Ref], r)
 	}
 
 	// Object
 	for propName, propType := range o.Properties {
-		r.AddProperty(w.makeProperty(o.Required, propName, propType))
+		r.AddMDProperty(w.makeMDProperty(o.Required, propName, propType))
 	}
 
 	// Array
 	if o.Type == "array" && o.Items != nil {
-		w.makeProperties(o.Items, r)
+		w.prepareMDProperties(o.Items, r)
 	}
 }
 
-func (w *Writer) makeProperty(requiredProps []string, name string, o *types.OpenApiType) (p *types.MDProperty) {
+func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.OpenApiType) (p *types.MDProperty) {
 	defer func() {
 		if r := recover(); r != nil {
 			w.opts.Logger.Error("failed to makeProperty", zap.String("name", name), zap.Any("obj", o), zap.Any("error", r))
@@ -323,26 +323,26 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Open
 	switch p.Type {
 	case "array":
 		if o.Items.Ref != nil {
-			w.makeProperties(w.refsMap[*o.Items.Ref], p)
+			w.prepareMDProperties(w.refsMap[*o.Items.Ref], p)
 		} else {
-			w.makeProperties(o.Items, p)
+			w.prepareMDProperties(o.Items, p)
 		}
 	case "object":
 		if o.Ref != nil {
-			w.makeProperties(w.refsMap[*o.Ref], p)
+			w.prepareMDProperties(w.refsMap[*o.Ref], p)
 		}
 	}
 
 	if len(o.AllOf) > 0 {
 		for _, a := range o.AllOf {
-			w.makeProperties(a, p)
+			w.prepareMDProperties(a, p)
 		}
 	}
 
 	return p
 }
 
-func (w *Writer) makeAdditionalProperty(name string, o *types.OpenApiType) *types.MDProperty {
+func (w *Writer) makeAdditionalMDProperty(name string, o *types.OpenApiType) *types.MDProperty {
 	return &types.MDProperty{
 		P:           nil,
 		Name:        name,
