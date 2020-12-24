@@ -278,6 +278,10 @@ func (w *Writer) getMDType(v *types.OpenApiType) string {
 		if v.MaxLength != nil {
 			t = fmt.Sprintf("%s\n- max-length: %d", t, *v.MaxLength)
 		}
+	case "array":
+		if v.Items != nil {
+			t = t + "\n- items: " + w.getMDType(v.Items)
+		}
 	}
 
 	return strings.ReplaceAll(t, "\n", "<br/>")
