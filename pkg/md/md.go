@@ -73,6 +73,9 @@ func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 		w.refsMap["#/components/schemas/"+k] = v
 	}
 
+	// *********************
+	// PREPARE MD FORMATS
+	// *********************
 	res := make([]*types.MDSchemasType, 0)
 	for k, v := range schemas {
 		t := w.MDSchemasType(v)
@@ -216,7 +219,7 @@ func (w *Writer) MDSchemasType(v *types.OpenApiType) *types.MDSchemasType {
 	}
 
 	// Type
-	r.Type = w.getType(v)
+	r.Type = w.getMDType(v)
 
 	w.prepareMDProperties(v, r)
 
@@ -233,16 +236,16 @@ func (w *Writer) getDescription(v *types.OpenApiType) string {
 
 	return prepareDescription(v.Description)
 }
-func (w *Writer) getType(v *types.OpenApiType) string {
+func (w *Writer) getMDType(v *types.OpenApiType) string {
 	if v == nil {
 		return "--unknown-type---"
 	}
 	if len(v.AllOf) > 0 {
 		return "--AllOff--"
-	} else if v.AdditionalProperties != nil {
+	} else if v.Type == "" && v.AdditionalProperties != nil {
 		return "--AdditionalProperties--"
 	} else if v.Ref != nil {
-		return w.getType(w.refsMap[*v.Ref])
+		return w.getMDType(w.refsMap[*v.Ref])
 	}
 
 	if v.Type == "" {
@@ -250,6 +253,11 @@ func (w *Writer) getType(v *types.OpenApiType) string {
 	}
 
 	t := v.Type
+
+	// AdditionalProperties - special case
+	if v.AdditionalProperties != nil {
+		t = t + "\n- format: --AdditionalProperties--"
+	}
 
 	// Check format
 	if v.Format != nil {
@@ -315,12 +323,12 @@ func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.Op
 	p = &types.MDProperty{
 		P:           o,
 		Name:        name,
-		Type:        w.getType(o),
+		Type:        w.getMDType(o),
 		Mandatory:   isRequired(requiredProps, name),
 		Description: w.getDescription(o),
 	}
 
-	switch p.Type {
+	switch o.Type {
 	case "array":
 		if o.Items.Ref != nil {
 			w.prepareMDProperties(w.refsMap[*o.Items.Ref], p)
@@ -331,6 +339,13 @@ func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.Op
 		if o.Ref != nil {
 			w.prepareMDProperties(w.refsMap[*o.Ref], p)
 		}
+	}
+
+	if o.AdditionalProperties != nil {
+		// This is very special case to handle additionalProperties
+		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp1", o.AdditionalProperties))
+		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp2", o.AdditionalProperties))
+		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp3", o.AdditionalProperties))
 	}
 
 	if len(o.AllOf) > 0 {
@@ -346,7 +361,7 @@ func (w *Writer) makeAdditionalMDProperty(name string, o *types.OpenApiType) *ty
 	return &types.MDProperty{
 		P:           nil,
 		Name:        name,
-		Type:        w.getType(o),
+		Type:        w.getMDType(o),
 		Mandatory:   "no",
 		Description: prepareDescription(o.Description),
 	}
