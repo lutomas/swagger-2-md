@@ -353,7 +353,7 @@ func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.Op
 					P:           o.Items,
 					Name:        "",
 					Type:        w.getMDType(o.Items),
-					Mandatory:   isRequired(requiredProps, ""),
+					Mandatory:   "-",
 					Description: w.getDescription(o.Items),
 				})
 			default:
