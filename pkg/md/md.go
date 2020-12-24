@@ -143,7 +143,11 @@ func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 					return in.Properties[i].Name < in.Properties[j].Name
 				})
 				for _, p := range in.Properties {
-					_, err = fmt.Fprintf(w.outFile, "|*%s*.**%s**|%s|%s|%s|\n", prefix, p.Name, p.Type, p.Mandatory, p.Description)
+					name := "*" + prefix + "*"
+					if p.Name != "" {
+						name = name + ".**" + p.Name + "**"
+					}
+					_, err = fmt.Fprintf(w.outFile, "|%s|%s|%s|%s|\n", name, p.Type, p.Mandatory, p.Description)
 					if err != nil {
 						return err
 					}
@@ -151,7 +155,7 @@ func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 				return nil
 			}
 
-			if v.Type != "array" {
+			if strings.HasPrefix(v.Type, "array") == false {
 				for _, p := range v.Properties {
 					_, err = fmt.Fprintf(w.outFile, "|**%s**|%s|%s|%s|\n", p.Name, p.Type, p.Mandatory, p.Description)
 					if err != nil {
@@ -189,7 +193,7 @@ func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 
 func makeSubPropertyPrefix(p *types.MDProperty) string {
 	prefix := p.Name
-	if p.Type == "array" {
+	if strings.HasPrefix(p.Type, "array") {
 		prefix = prefix + "[i]"
 	}
 	return prefix
@@ -334,10 +338,28 @@ func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.Op
 
 	switch o.Type {
 	case "array":
+		if o.Items == nil {
+			panic("array without items")
+		}
+
 		if o.Items.Ref != nil {
 			w.prepareMDProperties(w.refsMap[*o.Items.Ref], p)
 		} else {
-			w.prepareMDProperties(o.Items, p)
+			switch t := o.Items.Type; t {
+			case "object":
+				w.prepareMDProperties(o.Items, p)
+			case "string":
+				p.AddMDProperty(&types.MDProperty{
+					P:           o.Items,
+					Name:        "",
+					Type:        w.getMDType(o.Items),
+					Mandatory:   isRequired(requiredProps, ""),
+					Description: w.getDescription(o.Items),
+				})
+			default:
+				panic(fmt.Sprintf("item type '%s' not supported", t))
+			}
+
 		}
 	case "object":
 		if o.Ref != nil {
