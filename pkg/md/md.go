@@ -284,7 +284,13 @@ func (w *Writer) getMDType(v *types.OpenApiType) string {
 		}
 	case "array":
 		if v.Items != nil {
-			t = t + "\n- items: " + w.getMDType(v.Items)
+			switch {
+			case v.Items.Type != "":
+				t = t + " [" + v.Items.Type + "]"
+			default:
+				t = t + " [" + w.getMDType(v.Items) + "]"
+			}
+
 		}
 	}
 
