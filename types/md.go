@@ -5,7 +5,7 @@ type Properties interface {
 }
 
 type MDSchemasType struct {
-	O                    *ObjectType // Original object
+	O                    *OpenApiType // Original object
 	Name                 string
 	Description          string
 	Type                 string
@@ -23,7 +23,7 @@ func (o *MDSchemasType) AddProperty(p *MDProperty) {
 }
 
 type MDProperty struct {
-	P           *ObjectType // Original property
+	P           *OpenApiType // Original property
 	Name        string
 	Type        string
 	Mandatory   string

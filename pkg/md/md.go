@@ -19,7 +19,7 @@ type Opts struct {
 type Writer struct {
 	outFile *os.File
 	opts    *Opts
-	refsMap map[string]*types.ObjectType
+	refsMap map[string]*types.OpenApiType
 }
 
 func New(opts *Opts) (*Writer, error) {
@@ -34,7 +34,7 @@ func New(opts *Opts) (*Writer, error) {
 	}, nil
 }
 
-func (w *Writer) Write(v *types.Swagger) error {
+func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 	if w.outFile == nil {
 		f, err := os.Create(*w.opts.OutFilePath)
 		if err != nil {
@@ -66,7 +66,7 @@ func (w *Writer) writeSchemas(schemas types.Schema) (err error) {
 		}
 	}
 
-	w.refsMap = make(map[string]*types.ObjectType)
+	w.refsMap = make(map[string]*types.OpenApiType)
 	// types := make([]string, 0)
 	for k, v := range schemas {
 		// types = append(types, k)
@@ -207,7 +207,7 @@ func getPropertiesDepth(properties []*types.MDProperty) int {
 	return maxDepth
 }
 
-func (w *Writer) MDSchemasType(v *types.ObjectType) *types.MDSchemasType {
+func (w *Writer) MDSchemasType(v *types.OpenApiType) *types.MDSchemasType {
 	r := &types.MDSchemasType{
 		O:                    v,
 		Description:          prepareDescription(v.Description),
@@ -223,7 +223,7 @@ func (w *Writer) MDSchemasType(v *types.ObjectType) *types.MDSchemasType {
 	return r
 }
 
-func (w *Writer) getDescription(v *types.ObjectType) string {
+func (w *Writer) getDescription(v *types.OpenApiType) string {
 	if v == nil {
 		return "--unspecified-description---"
 	}
@@ -233,7 +233,7 @@ func (w *Writer) getDescription(v *types.ObjectType) string {
 
 	return prepareDescription(v.Description)
 }
-func (w *Writer) getType(v *types.ObjectType) string {
+func (w *Writer) getType(v *types.OpenApiType) string {
 	if v == nil {
 		return "--unknown-type---"
 	}
@@ -275,7 +275,7 @@ func (w *Writer) getType(v *types.ObjectType) string {
 	return strings.ReplaceAll(t, "\n", "<br/>")
 }
 
-func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
+func (w *Writer) makeProperties(o *types.OpenApiType, r types.Properties) {
 	// AllOff
 	if len(o.AllOf) > 0 {
 		for _, v := range o.AllOf {
@@ -305,7 +305,7 @@ func (w *Writer) makeProperties(o *types.ObjectType, r types.Properties) {
 	}
 }
 
-func (w *Writer) makeProperty(requiredProps []string, name string, o *types.ObjectType) (p *types.MDProperty) {
+func (w *Writer) makeProperty(requiredProps []string, name string, o *types.OpenApiType) (p *types.MDProperty) {
 	defer func() {
 		if r := recover(); r != nil {
 			w.opts.Logger.Error("failed to makeProperty", zap.String("name", name), zap.Any("obj", o), zap.Any("error", r))
@@ -342,7 +342,7 @@ func (w *Writer) makeProperty(requiredProps []string, name string, o *types.Obje
 	return p
 }
 
-func (w *Writer) makeAdditionalProperty(name string, o *types.ObjectType) *types.MDProperty {
+func (w *Writer) makeAdditionalProperty(name string, o *types.OpenApiType) *types.MDProperty {
 	return &types.MDProperty{
 		P:           nil,
 		Name:        name,

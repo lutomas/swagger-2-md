@@ -22,8 +22,7 @@ install-cli:
 # ###########################
 easyjson: export GO111MODULE := off
 easyjson:
-	easyjson -all types/object.go
-	easyjson -all types/swagger.go
+	easyjson -all types/open_api.go
 
 
 # ###########################

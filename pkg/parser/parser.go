@@ -24,7 +24,7 @@ func New(opts *Opts) (*Parser, error) {
 	}, nil
 }
 
-func (c *Parser) Parse() (*types.Swagger, error) {
+func (c *Parser) Parse() (*types.OpenApiFileWrapper, error) {
 	jsonFile, err := os.Open(c.opts.InFile.Name())
 	// if we os.Open returns an error then handle it
 	if err != nil {
@@ -34,7 +34,7 @@ func (c *Parser) Parse() (*types.Swagger, error) {
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
 
-	data := &types.Swagger{}
+	data := &types.OpenApiFileWrapper{}
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	err = easyjson.Unmarshal(byteValue, data)
