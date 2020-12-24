@@ -347,9 +347,7 @@ func (w *Writer) makeMDProperty(requiredProps []string, name string, o *types.Op
 
 	if o.AdditionalProperties != nil {
 		// This is very special case to handle additionalProperties
-		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp1", o.AdditionalProperties))
-		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp2", o.AdditionalProperties))
-		p.AddMDProperty(w.makeAdditionalMDProperty("additionalProp3", o.AdditionalProperties))
+		w.prepareMDProperties(o, p)
 	}
 
 	if len(o.AllOf) > 0 {
