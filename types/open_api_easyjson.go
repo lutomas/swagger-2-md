@@ -519,16 +519,28 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(in *jlexer.Lexer, ou
 					in.AddError((*out.Delete).UnmarshalJSON(data))
 				}
 			}
-		case "update":
+		case "put":
 			if in.IsNull() {
 				in.Skip()
-				out.Update = nil
+				out.Put = nil
 			} else {
-				if out.Update == nil {
-					out.Update = new(OpenApiPathDetails)
+				if out.Put == nil {
+					out.Put = new(OpenApiPathDetails)
 				}
 				if data := in.Raw(); in.Ok() {
-					in.AddError((*out.Update).UnmarshalJSON(data))
+					in.AddError((*out.Put).UnmarshalJSON(data))
+				}
+			}
+		case "patch":
+			if in.IsNull() {
+				in.Skip()
+				out.Patch = nil
+			} else {
+				if out.Patch == nil {
+					out.Patch = new(OpenApiPathDetails)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.Patch).UnmarshalJSON(data))
 				}
 			}
 		default:
@@ -571,15 +583,25 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(out *jwriter.Writer,
 		}
 		out.Raw((*in.Delete).MarshalJSON())
 	}
-	if in.Update != nil {
-		const prefix string = ",\"update\":"
+	if in.Put != nil {
+		const prefix string = ",\"put\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
 		} else {
 			out.RawString(prefix)
 		}
-		out.Raw((*in.Update).MarshalJSON())
+		out.Raw((*in.Put).MarshalJSON())
+	}
+	if in.Patch != nil {
+		const prefix string = ",\"patch\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.Patch).MarshalJSON())
 	}
 	out.RawByte('}')
 }

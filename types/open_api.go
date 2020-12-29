@@ -37,7 +37,8 @@ type OpenApiPath struct {
 	Get    *OpenApiPathDetails `json:"get,omitempty"`
 	Post   *OpenApiPathDetails `json:"post,omitempty"`
 	Delete *OpenApiPathDetails `json:"delete,omitempty"`
-	Update *OpenApiPathDetails `json:"update,omitempty"`
+	Put    *OpenApiPathDetails `json:"put,omitempty"`
+	Patch  *OpenApiPathDetails `json:"patch,omitempty"`
 }
 
 type OpenApiPathDetails struct {

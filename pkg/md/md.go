@@ -47,8 +47,25 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 
 	}
 
+	if w.opts.CustomCSS != "" {
+		_, err := fmt.Fprintf(w.outFile, "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"%s\" /> \n\n", w.opts.CustomCSS)
+		if err != nil {
+			return err
+		}
+	}
+
+	if v.Paths != nil {
+		err := w.writePaths(v.Paths)
+		if err != nil {
+			return err
+		}
+	}
+
 	if v.Components != nil {
-		return w.writeSchemas(v.Components.Schemas)
+		err := w.writeSchemas(v.Components.Schemas)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -57,13 +74,6 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 	if schemas == nil {
 		w.opts.Logger.Warn("No schemas to write.")
-	}
-
-	if w.opts.CustomCSS != "" {
-		_, err = fmt.Fprintf(w.outFile, "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"%s\" /> \n\n", w.opts.CustomCSS)
-		if err != nil {
-			return err
-		}
 	}
 
 	w.refsMap = make(map[string]*types.OpenApiType)
@@ -395,6 +405,46 @@ func (w *Writer) makeAdditionalMDProperty(name string, o *types.OpenApiType) *ty
 		Mandatory:   "no",
 		Description: prepareDescription(o.Description),
 	}
+}
+
+func (w *Writer) writePaths(paths types.OpenApiPaths) error {
+	for path, val := range paths {
+		_, err := fmt.Fprintf(w.outFile, "# %s\n", path)
+		if err != nil {
+			return err
+		}
+
+		switch {
+		case val.Post != nil && val.Post.Description != nil:
+			_, err := fmt.Fprintf(w.outFile, "## Create (POST)\n%s\n\n", *val.Post.Description)
+			if err != nil {
+				return err
+			}
+		case val.Get != nil && val.Get.Description != nil:
+			_, err := fmt.Fprintf(w.outFile, "## Read (GET)\n%s\n\n", *val.Get.Description)
+			if err != nil {
+				return err
+			}
+		case val.Put != nil && val.Put.Description != nil:
+			_, err := fmt.Fprintf(w.outFile, "## Update (PUT)\n%s\n\n", *val.Put.Description)
+			if err != nil {
+				return err
+			}
+		case val.Patch != nil && val.Patch.Description != nil:
+			_, err := fmt.Fprintf(w.outFile, "## Update (patch)\n%s\n\n", *val.Patch.Description)
+			if err != nil {
+				return err
+			}
+		case val.Delete != nil && val.Delete.Description != nil:
+			_, err := fmt.Fprintf(w.outFile, "## Delete (DELETE)\n%s\n\n", *val.Delete.Description)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
 }
 
 func prepareDescription(description *string) string {
