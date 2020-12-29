@@ -2,6 +2,7 @@ package types
 
 type OpenApiFileWrapper struct {
 	Openapi    string             `json:"openapi"`
+	Paths      OpenApiPaths       `json:"paths"`
 	Components *OpenApiComponents `json:"components"`
 }
 
@@ -10,6 +11,7 @@ type OpenApiComponents struct {
 }
 
 type OpenApiSchema = map[string]*OpenApiType
+type OpenApiPaths = map[string]*OpenApiPath
 
 type OpenApiType struct {
 	Type                 string                  `json:"type"`
@@ -29,4 +31,15 @@ type OpenApiType struct {
 
 func (v *OpenApiType) IsObject() bool {
 	return v.Type == "object"
+}
+
+type OpenApiPath struct {
+	Get    *OpenApiPathDetails `json:"get,omitempty"`
+	Post   *OpenApiPathDetails `json:"post,omitempty"`
+	Delete *OpenApiPathDetails `json:"delete,omitempty"`
+	Update *OpenApiPathDetails `json:"update,omitempty"`
+}
+
+type OpenApiPathDetails struct {
+	Description *string `json:"description,omitempty"`
 }
