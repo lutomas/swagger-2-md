@@ -42,5 +42,10 @@ type OpenApiPath struct {
 }
 
 type OpenApiPathDetails struct {
+	Description *string                     `json:"description,omitempty"`
+	Responses   map[string]*OpenApiResponse `json:"responses,omitempty"`
+}
+
+type OpenApiResponse struct {
 	Description *string `json:"description,omitempty"`
 }

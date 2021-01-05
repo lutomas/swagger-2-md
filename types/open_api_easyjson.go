@@ -389,7 +389,7 @@ func (v *OpenApiType) UnmarshalJSON(data []byte) error {
 func (v *OpenApiType) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes(l, v)
 }
-func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, out *OpenApiPathDetails) {
+func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, out *OpenApiResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -428,7 +428,7 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer, in OpenApiPathDetails) {
+func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer, in OpenApiResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -442,29 +442,162 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer,
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v OpenApiPathDetails) MarshalJSON() ([]byte, error) {
+func (v OpenApiResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v OpenApiPathDetails) MarshalEasyJSON(w *jwriter.Writer) {
+func (v OpenApiResponse) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *OpenApiPathDetails) UnmarshalJSON(data []byte) error {
+func (v *OpenApiResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *OpenApiPathDetails) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *OpenApiResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(l, v)
 }
-func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(in *jlexer.Lexer, out *OpenApiPath) {
+func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(in *jlexer.Lexer, out *OpenApiPathDetails) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "description":
+			if in.IsNull() {
+				in.Skip()
+				out.Description = nil
+			} else {
+				if out.Description == nil {
+					out.Description = new(string)
+				}
+				*out.Description = string(in.String())
+			}
+		case "responses":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				if !in.IsDelim('}') {
+					out.Responses = make(map[string]*OpenApiResponse)
+				} else {
+					out.Responses = nil
+				}
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v12 *OpenApiResponse
+					if in.IsNull() {
+						in.Skip()
+						v12 = nil
+					} else {
+						if v12 == nil {
+							v12 = new(OpenApiResponse)
+						}
+						if data := in.Raw(); in.Ok() {
+							in.AddError((*v12).UnmarshalJSON(data))
+						}
+					}
+					(out.Responses)[key] = v12
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(out *jwriter.Writer, in OpenApiPathDetails) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.Description != nil {
+		const prefix string = ",\"description\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(*in.Description))
+	}
+	if len(in.Responses) != 0 {
+		const prefix string = ",\"responses\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('{')
+			v13First := true
+			for v13Name, v13Value := range in.Responses {
+				if v13First {
+					v13First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v13Name))
+				out.RawByte(':')
+				if v13Value == nil {
+					out.RawString("null")
+				} else {
+					out.Raw((*v13Value).MarshalJSON())
+				}
+			}
+			out.RawByte('}')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v OpenApiPathDetails) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v OpenApiPathDetails) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *OpenApiPathDetails) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *OpenApiPathDetails) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(l, v)
+}
+func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(in *jlexer.Lexer, out *OpenApiPath) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -553,7 +686,7 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(out *jwriter.Writer, in OpenApiPath) {
+func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(out *jwriter.Writer, in OpenApiPath) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -609,27 +742,27 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(out *jwriter.Writer,
 // MarshalJSON supports json.Marshaler interface
 func (v OpenApiPath) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(&w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OpenApiPath) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes2(w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *OpenApiPath) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(&r, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OpenApiPath) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes2(l, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(l, v)
 }
-func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(in *jlexer.Lexer, out *OpenApiFileWrapper) {
+func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(in *jlexer.Lexer, out *OpenApiFileWrapper) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -659,19 +792,19 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(in *jlexer.Lexer, ou
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v12 *OpenApiPath
+					var v14 *OpenApiPath
 					if in.IsNull() {
 						in.Skip()
-						v12 = nil
+						v14 = nil
 					} else {
-						if v12 == nil {
-							v12 = new(OpenApiPath)
+						if v14 == nil {
+							v14 = new(OpenApiPath)
 						}
 						if data := in.Raw(); in.Ok() {
-							in.AddError((*v12).UnmarshalJSON(data))
+							in.AddError((*v14).UnmarshalJSON(data))
 						}
 					}
-					(out.Paths)[key] = v12
+					(out.Paths)[key] = v14
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -698,7 +831,7 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(out *jwriter.Writer, in OpenApiFileWrapper) {
+func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(out *jwriter.Writer, in OpenApiFileWrapper) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -714,19 +847,19 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(out *jwriter.Writer,
 			out.RawString(`null`)
 		} else {
 			out.RawByte('{')
-			v13First := true
-			for v13Name, v13Value := range in.Paths {
-				if v13First {
-					v13First = false
+			v15First := true
+			for v15Name, v15Value := range in.Paths {
+				if v15First {
+					v15First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v13Name))
+				out.String(string(v15Name))
 				out.RawByte(':')
-				if v13Value == nil {
+				if v15Value == nil {
 					out.RawString("null")
 				} else {
-					out.Raw((*v13Value).MarshalJSON())
+					out.Raw((*v15Value).MarshalJSON())
 				}
 			}
 			out.RawByte('}')
@@ -747,27 +880,27 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(out *jwriter.Writer,
 // MarshalJSON supports json.Marshaler interface
 func (v OpenApiFileWrapper) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(&w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OpenApiFileWrapper) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes3(w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *OpenApiFileWrapper) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(&r, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OpenApiFileWrapper) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes3(l, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(l, v)
 }
-func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(in *jlexer.Lexer, out *OpenApiComponents) {
+func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes5(in *jlexer.Lexer, out *OpenApiComponents) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -795,19 +928,19 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(in *jlexer.Lexer, ou
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v14 *OpenApiType
+					var v16 *OpenApiType
 					if in.IsNull() {
 						in.Skip()
-						v14 = nil
+						v16 = nil
 					} else {
-						if v14 == nil {
-							v14 = new(OpenApiType)
+						if v16 == nil {
+							v16 = new(OpenApiType)
 						}
 						if data := in.Raw(); in.Ok() {
-							in.AddError((*v14).UnmarshalJSON(data))
+							in.AddError((*v16).UnmarshalJSON(data))
 						}
 					}
-					(out.Schemas)[key] = v14
+					(out.Schemas)[key] = v16
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -822,7 +955,7 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(out *jwriter.Writer, in OpenApiComponents) {
+func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes5(out *jwriter.Writer, in OpenApiComponents) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -833,19 +966,19 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(out *jwriter.Writer,
 			out.RawString(`null`)
 		} else {
 			out.RawByte('{')
-			v15First := true
-			for v15Name, v15Value := range in.Schemas {
-				if v15First {
-					v15First = false
+			v17First := true
+			for v17Name, v17Value := range in.Schemas {
+				if v17First {
+					v17First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v15Name))
+				out.String(string(v17Name))
 				out.RawByte(':')
-				if v15Value == nil {
+				if v17Value == nil {
 					out.RawString("null")
 				} else {
-					out.Raw((*v15Value).MarshalJSON())
+					out.Raw((*v17Value).MarshalJSON())
 				}
 			}
 			out.RawByte('}')
@@ -857,23 +990,23 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(out *jwriter.Writer,
 // MarshalJSON supports json.Marshaler interface
 func (v OpenApiComponents) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(&w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OpenApiComponents) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes4(w, v)
+	easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *OpenApiComponents) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(&r, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OpenApiComponents) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes4(l, v)
+	easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes5(l, v)
 }
