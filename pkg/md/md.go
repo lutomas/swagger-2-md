@@ -478,7 +478,8 @@ func (w *Writer) writePathResponse(path *types.OpenApiPathDetails) error {
 	}
 
 	// Table header
-	_, err = fmt.Fprintf(w.outFile, "<table><tr><th>Status</th><th>Description</th></tr>\n")
+	// _, err = fmt.Fprintf(w.outFile, "<table><tr><th>Status</th><th>Description</th></tr>\n")
+	_, err = fmt.Fprintf(w.outFile, "| Status | Description |\n|:------|:------|\n")
 	if err != nil {
 		return err
 	}
@@ -492,17 +493,17 @@ func (w *Writer) writePathResponse(path *types.OpenApiPathDetails) error {
 	sort.Strings(responseCodes)
 
 	for _, code := range responseCodes {
-		_, err = fmt.Fprintf(w.outFile, "<tr><td>%s</td><td>%s</td></tr>\n", code, prepareDescription(path.Responses[code].Description))
+		_, err = fmt.Fprintf(w.outFile, "| %s | %s |\n", code, prepareDescription(path.Responses[code].Description))
 		if err != nil {
 			return err
 		}
 	}
 
-	// Table footer
-	_, err = fmt.Fprintf(w.outFile, "</table>\n\n")
-	if err != nil {
-		return err
-	}
+	// // Table footer
+	// _, err = fmt.Fprintf(w.outFile, "</table>\n\n")
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
