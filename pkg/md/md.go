@@ -420,9 +420,17 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err != nil {
 				return err
 			}
+
+			if err = w.writePathResponse(val.Post); err != nil {
+				return err
+			}
 		case val.Get != nil && val.Get.Description != nil:
 			_, err := fmt.Fprintf(w.outFile, "## Read (GET)\n%s\n\n", *val.Get.Description)
 			if err != nil {
+				return err
+			}
+
+			if err = w.writePathResponse(val.Get); err != nil {
 				return err
 			}
 		case val.Put != nil && val.Put.Description != nil:
@@ -430,9 +438,17 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err != nil {
 				return err
 			}
+
+			if err = w.writePathResponse(val.Put); err != nil {
+				return err
+			}
 		case val.Patch != nil && val.Patch.Description != nil:
 			_, err := fmt.Fprintf(w.outFile, "## Update (patch)\n%s\n\n", *val.Patch.Description)
 			if err != nil {
+				return err
+			}
+
+			if err = w.writePathResponse(val.Patch); err != nil {
 				return err
 			}
 		case val.Delete != nil && val.Delete.Description != nil:
@@ -440,8 +456,52 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err != nil {
 				return err
 			}
+
+			if err = w.writePathResponse(val.Delete); err != nil {
+				return err
+			}
 		}
 
+	}
+
+	return nil
+}
+
+func (w *Writer) writePathResponse(path *types.OpenApiPathDetails) error {
+	if len(path.Responses) <= 0 {
+		return nil
+	}
+
+	_, err := fmt.Fprintf(w.outFile, "### Responses\n\n")
+	if err != nil {
+		return err
+	}
+
+	// Table header
+	_, err = fmt.Fprintf(w.outFile, "<table><tr><th>Status</th><th>Description</th></tr>\n")
+	if err != nil {
+		return err
+	}
+
+	responseCodes := make([]string, 0)
+
+	for code, _ := range path.Responses {
+		responseCodes = append(responseCodes, code)
+	}
+
+	sort.Strings(responseCodes)
+
+	for _, code := range responseCodes {
+		_, err = fmt.Fprintf(w.outFile, "<tr><td>%s</td><td>%s</td></tr>\n", code, prepareDescription(path.Responses[code].Description))
+		if err != nil {
+			return err
+		}
+	}
+
+	// Table footer
+	_, err = fmt.Fprintf(w.outFile, "</table>\n\n")
+	if err != nil {
+		return err
 	}
 
 	return nil
