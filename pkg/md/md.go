@@ -414,8 +414,7 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			return err
 		}
 
-		switch {
-		case val.Post != nil && val.Post.Description != nil:
+		if val.Post != nil {
 			_, err := fmt.Fprintf(w.outFile, "## Create (POST)\n%s\n\n", *val.Post.Description)
 			if err != nil {
 				return err
@@ -424,7 +423,9 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err = w.writePathResponse(val.Post); err != nil {
 				return err
 			}
-		case val.Get != nil && val.Get.Description != nil:
+		}
+
+		if val.Get != nil {
 			_, err := fmt.Fprintf(w.outFile, "## Read (GET)\n%s\n\n", *val.Get.Description)
 			if err != nil {
 				return err
@@ -433,7 +434,9 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err = w.writePathResponse(val.Get); err != nil {
 				return err
 			}
-		case val.Put != nil && val.Put.Description != nil:
+		}
+
+		if val.Put != nil {
 			_, err := fmt.Fprintf(w.outFile, "## Update (PUT)\n%s\n\n", *val.Put.Description)
 			if err != nil {
 				return err
@@ -442,7 +445,9 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err = w.writePathResponse(val.Put); err != nil {
 				return err
 			}
-		case val.Patch != nil && val.Patch.Description != nil:
+		}
+
+		if val.Patch != nil {
 			_, err := fmt.Fprintf(w.outFile, "## Update (patch)\n%s\n\n", *val.Patch.Description)
 			if err != nil {
 				return err
@@ -451,7 +456,9 @@ func (w *Writer) writePaths(paths types.OpenApiPaths) error {
 			if err = w.writePathResponse(val.Patch); err != nil {
 				return err
 			}
-		case val.Delete != nil && val.Delete.Description != nil:
+		}
+
+		if val.Delete != nil {
 			_, err := fmt.Fprintf(w.outFile, "## Delete (DELETE)\n%s\n\n", *val.Delete.Description)
 			if err != nil {
 				return err
