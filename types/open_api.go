@@ -7,7 +7,8 @@ type OpenApiFileWrapper struct {
 }
 
 type OpenApiComponents struct {
-	Schemas OpenApiSchema `json:"schemas"`
+	Schemas   OpenApiSchema `json:"schemas"`
+	Responses OpenApiSchema `json:"responses"`
 }
 
 type OpenApiSchema = map[string]*OpenApiType

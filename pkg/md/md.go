@@ -61,6 +61,16 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 		}
 	}
 
+	w.refsMap = make(map[string]*types.OpenApiType)
+
+	for k, v := range v.Components.Responses {
+		w.refsMap["#/components/responses/"+k] = v
+	}
+
+	for k, v := range v.Components.Schemas {
+		w.refsMap["#/components/schemas/"+k] = v
+	}
+
 	if v.Components != nil {
 		err := w.writeSchemas(v.Components.Schemas)
 		if err != nil {
@@ -74,13 +84,6 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 func (w *Writer) writeSchemas(schemas types.OpenApiSchema) (err error) {
 	if schemas == nil {
 		w.opts.Logger.Warn("No schemas to write.")
-	}
-
-	w.refsMap = make(map[string]*types.OpenApiType)
-	// types := make([]string, 0)
-	for k, v := range schemas {
-		// types = append(types, k)
-		w.refsMap["#/components/schemas/"+k] = v
 	}
 
 	// *********************

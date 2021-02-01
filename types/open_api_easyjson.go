@@ -960,6 +960,32 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes5(in *jlexer.Lexer, ou
 				}
 				in.Delim('}')
 			}
+		case "responses":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Responses = make(map[string]*OpenApiType)
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v17 *OpenApiType
+					if in.IsNull() {
+						in.Skip()
+						v17 = nil
+					} else {
+						if v17 == nil {
+							v17 = new(OpenApiType)
+						}
+						if data := in.Raw(); in.Ok() {
+							in.AddError((*v17).UnmarshalJSON(data))
+						}
+					}
+					(out.Responses)[key] = v17
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -981,19 +1007,44 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes5(out *jwriter.Writer,
 			out.RawString(`null`)
 		} else {
 			out.RawByte('{')
-			v17First := true
-			for v17Name, v17Value := range in.Schemas {
-				if v17First {
-					v17First = false
+			v18First := true
+			for v18Name, v18Value := range in.Schemas {
+				if v18First {
+					v18First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v17Name))
+				out.String(string(v18Name))
 				out.RawByte(':')
-				if v17Value == nil {
+				if v18Value == nil {
 					out.RawString("null")
 				} else {
-					out.Raw((*v17Value).MarshalJSON())
+					out.Raw((*v18Value).MarshalJSON())
+				}
+			}
+			out.RawByte('}')
+		}
+	}
+	{
+		const prefix string = ",\"responses\":"
+		out.RawString(prefix)
+		if in.Responses == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v19First := true
+			for v19Name, v19Value := range in.Responses {
+				if v19First {
+					v19First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v19Name))
+				out.RawByte(':')
+				if v19Value == nil {
+					out.RawString("null")
+				} else {
+					out.Raw((*v19Value).MarshalJSON())
 				}
 			}
 			out.RawByte('}')
