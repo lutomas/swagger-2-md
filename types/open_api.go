@@ -50,4 +50,5 @@ type OpenApiPathDetails struct {
 
 type OpenApiResponse struct {
 	Description *string `json:"description,omitempty"`
+	Ref         *string `json:"$ref,omitempty"`
 }

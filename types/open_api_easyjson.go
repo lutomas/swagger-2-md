@@ -433,6 +433,16 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes1(in *jlexer.Lexer, ou
 				}
 				*out.Description = string(in.String())
 			}
+		case "$ref":
+			if in.IsNull() {
+				in.Skip()
+				out.Ref = nil
+			} else {
+				if out.Ref == nil {
+					out.Ref = new(string)
+				}
+				*out.Ref = string(in.String())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -452,6 +462,16 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes1(out *jwriter.Writer,
 		first = false
 		out.RawString(prefix[1:])
 		out.String(string(*in.Description))
+	}
+	if in.Ref != nil {
+		const prefix string = ",\"$ref\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(*in.Ref))
 	}
 	out.RawByte('}')
 }

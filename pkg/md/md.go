@@ -54,13 +54,6 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 		}
 	}
 
-	if v.Paths != nil {
-		err := w.writePaths(v.Paths)
-		if err != nil {
-			return err
-		}
-	}
-
 	w.refsMap = make(map[string]*types.OpenApiType)
 
 	for k, v := range v.Components.Responses {
@@ -69,6 +62,13 @@ func (w *Writer) Write(v *types.OpenApiFileWrapper) error {
 
 	for k, v := range v.Components.Schemas {
 		w.refsMap["#/components/schemas/"+k] = v
+	}
+
+	if v.Paths != nil {
+		err := w.writePaths(v.Paths)
+		if err != nil {
+			return err
+		}
 	}
 
 	if v.Components != nil {
@@ -507,7 +507,14 @@ func (w *Writer) writePathResponse(path *types.OpenApiPathDetails) error {
 	sort.Strings(responseCodes)
 
 	for _, code := range responseCodes {
-		_, err = fmt.Fprintf(w.outFile, "| %s | %s |\n", code, prepareDescription(path.Responses[code].Description))
+
+		description := prepareDescription(path.Responses[code].Description)
+
+		if path.Responses[code].Ref != nil {
+			description = w.getDescription(w.refsMap[*path.Responses[code].Ref])
+		}
+
+		_, err = fmt.Fprintf(w.outFile, "| %s | %s |\n", code, description)
 		if err != nil {
 			return err
 		}
