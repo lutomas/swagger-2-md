@@ -229,6 +229,16 @@ func easyjson60d9767dDecodeGithubComLutomasSwagger2MdTypes(in *jlexer.Lexer, out
 				}
 				*out.MinLength = int64(in.Int64())
 			}
+		case "minimum":
+			if in.IsNull() {
+				in.Skip()
+				out.Minimum = nil
+			} else {
+				if out.Minimum == nil {
+					out.Minimum = new(int64)
+				}
+				*out.Minimum = int64(in.Int64())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -362,6 +372,11 @@ func easyjson60d9767dEncodeGithubComLutomasSwagger2MdTypes(out *jwriter.Writer, 
 		const prefix string = ",\"minLength\":"
 		out.RawString(prefix)
 		out.Int64(int64(*in.MinLength))
+	}
+	if in.Minimum != nil {
+		const prefix string = ",\"minimum\":"
+		out.RawString(prefix)
+		out.Int64(int64(*in.Minimum))
 	}
 	out.RawByte('}')
 }

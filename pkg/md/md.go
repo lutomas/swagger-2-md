@@ -278,6 +278,10 @@ func (w *Writer) getMDType(v *types.OpenApiType) string {
 		t = t + "\n- format: " + *v.Format
 	}
 
+	if v.Minimum != nil {
+		t = fmt.Sprintf("%s\n- minimum: %d", t, *v.Minimum)
+	}
+
 	switch t {
 	case "string":
 		// Check enums

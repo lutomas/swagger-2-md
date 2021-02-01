@@ -27,6 +27,7 @@ type OpenApiType struct {
 	AdditionalProperties *OpenApiType            `json:"additionalProperties,omitempty"`
 	MaxLength            *int64                  `json:"maxLength,omitempty"`
 	MinLength            *int64                  `json:"minLength,omitempty"`
+	Minimum              *int64                  `json:"minimum,omitempty"`
 }
 
 func (v *OpenApiType) IsObject() bool {
